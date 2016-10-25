@@ -6,20 +6,6 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
 
     <link href="src/app.css" rel="stylesheet" />
-
-    <script>
-      // variables for css templates
-      window.theme = {
-        red: '#ef5350',
-        darkRed: '#d32f2f',
-        lightRed: '#ef9a9a',
-        gray: '#aaa'
-      }
-      // UTF8 icons for html templates
-      window.icons = {
-        remove: '&#10005;'
-      }
-    </script>
   </head>
 
   <body>
@@ -32,12 +18,13 @@
     </div>
 
     <script src="lib/document-register-element.js"></script>
-    <!-- <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script> -->
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
     <script src="lib/dom4.js"></script>
 
     <script>
       loadScripts([
         'html-component',
+        'theme',
         'todo-item',
         'todo-summary',
         'todo-list'

@@ -38,9 +38,9 @@ It provides a few helpers to make it easier to adopt this style of development:
 - styles get scoped to the custom element, e.g. `h1 { color: red }` becomes `todo-item h1 { color: red }`
 
 ## Dependencies
-- [document-register-element.js]() (Custom Elements v1 polyfill): not required for Chrome
-- [dom4.js]() (DOM4 methods polyfills): optional, but makes it way easier to work with the DOM
-- [polyfill.io](): optional, builds custom ES5 polyfills for older browsers.
+- [document-register-element.js](https://github.com/WebReflection/document-register-element) (Custom Elements v1 polyfill): not required for Chrome
+- [dom4.js](https://github.com/WebReflection/dom4) (DOM4 methods polyfills): optional, but makes it way easier to work with the DOM
+- [polyfill.io](https://polyfill.io/v2/docs/): optional, builds custom ES5 polyfills for older browsers.
 
 ## Build
 If you're developing on Chrome latest, *no build step is necessary*. No file watchers, no just in time compilation, just run ES6 natively.
