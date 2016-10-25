@@ -12,6 +12,9 @@ In the meantime, browsers are implementing Web Components natively and some part
 
 ## How does it look?
 Here's a sample from the canonical `todo-item` component:
+
+![alt tag](https://raw.githubusercontent.com/felipeccastro/html-component/master/sample.png)
+
 You can check the complete code for more details: [todo-list](https://github.com/felipeccastro/html-component/blob/master/src/todo-list.js), [todo-item](https://github.com/felipeccastro/html-component/blob/master/src/todo-item.js) and [todo-summary](https://github.com/felipeccastro/html-component/blob/master/src/todo-summary.js)
 
 ## Components
