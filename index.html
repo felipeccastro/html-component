@@ -5,42 +5,8 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
 
-    <style>
-      /* Inline application shell styles */
-      body {
-        font-family: -apple-system,
-          BlinkMacSystemFont, "Segoe UI",
-          Roboto, Helvetica, Arial, sans-serif,
-          "Apple Color Emoji", "Segoe UI Emoji",
-          "Segoe UI Symbol";
-        background: whitesmoke;
-        font-weight: 300;
-        color: #333;
-      }
-      h1 {
-        font-weight: 200;
-        text-align: center;
-        text-transform: lowercase;
-        font-size: 40px;
-        margin: 0;
-        margin-bottom: 10px;
-      }
-      #container {
-        display: block;
-        background: white;
-        width: 99%;
-        max-width: 450px;
-        margin-left: auto;
-        margin-right: auto;
-        box-shadow: 0 2px 2px 0 #aaa;
-      }
-      * {
-        box-sizing: border-box;
-      }
-      .hidden {
-        display: none !important;
-      }
-    </style>
+    <link href="src/app.css" rel="stylesheet" />
+
     <script>
       // variables for css templates
       window.theme = {
@@ -60,7 +26,9 @@
 
     <h1>Todos</h1>
     <div id="container">
+
       <todo-list></todo-list>
+
     </div>
 
     <script src="lib/document-register-element.js"></script>
@@ -76,8 +44,8 @@
       ])
 
       function loadScripts(files) {
-        // var dir = 'src' // Development (ES6 native, no babel)
-        var dir = 'dist' // Production (ES5 transpiled with Babel)
+        var dir = 'src' // Development (ES6 native, no babel)
+        // var dir = 'dist' // Production (ES5 transpiled with Babel)
 
         files.forEach(function(file) {
           var script = document.createElement("script")
