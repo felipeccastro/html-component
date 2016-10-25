@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="html-component : Component-based UIs with vanilla ES6 and Custom Elements">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>html-component</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/felipeccastro/html-component">View on GitHub</a>
+
+          <h1 id="project_title">html-component</h1>
+          <h2 id="project_tagline">Component-based UIs with vanilla ES6 and Custom Elements</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/felipeccastro/html-component/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/felipeccastro/html-component/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a id="html-component" class="anchor" href="#html-component" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>HTML Component</h1>
+
+<p>Build component-based UIs without frameworks, just vanilla ES6 and Custom Elements.</p>
+
+<h2>
+<a id="what" class="anchor" href="#what" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What?</h2>
+
+<p>You know how in frontend frameworks like React/Angular/Vue you can split your entire UI in small, self-contained components?
+It turns out you can get a similar kind of organization without any framework, using native Custom Elements.</p>
+
+<h2>
+<a id="why" class="anchor" href="#why" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Why?</h2>
+
+<p>Splitting a complex page into small, self contained components is really helpful for ease of maintenance. If that's all you're interested, you shouldn't need to pull a framework for that.
+Frontend frameworks can be really helpful, but they have their own share of problems: the payload size, lack of control, leaky abstractions, vendor lock-in, steep learning curve, etc.
+In the meantime, browsers are implementing Web Components natively and some parts of it, like Custom Elements, have polyfills stable enough that can be used in production today.</p>
+
+<h2>
+<a id="how-does-it-look" class="anchor" href="#how-does-it-look" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How does it look?</h2>
+
+<p>Here's a sample component from the canonical Todo application:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">class</span> <span class="pl-en">TodoItem</span> <span class="pl-k">extends</span> <span class="pl-e">HTMLComponent</span> {
+
+  <span class="pl-en">template</span>(<span class="pl-smi">props</span>) { <span class="pl-k">return</span> <span class="pl-s"><span class="pl-en">html</span><span class="pl-pds">`</span></span>
+<span class="pl-s">    &lt;<span class="pl-ent">input</span> <span class="pl-e">type</span>=<span class="pl-s"><span class="pl-pds">"</span>checkbox<span class="pl-pds">"</span></span> ${ <span class="pl-e">props</span>.<span class="pl-e">done</span> ? <span class="pl-s"><span class="pl-pds">'</span>checked<span class="pl-pds">'</span></span> : <span class="pl-s"><span class="pl-pds">'</span><span class="pl-pds">'</span></span> }&gt;</span>
+<span class="pl-s">    &lt;<span class="pl-ent">input</span> <span class="pl-e">type</span>=<span class="pl-s"><span class="pl-pds">"</span>text<span class="pl-pds">"</span></span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>desc<span class="pl-pds">"</span></span> <span class="pl-e">readonly</span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">"</span>${props.desc}<span class="pl-pds">"</span></span> /&gt;</span>
+<span class="pl-s">    &lt;<span class="pl-ent">button</span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>remove<span class="pl-pds">"</span></span>&gt;<span class="pl-s1"><span class="pl-pse">${</span><span class="pl-smi">icons</span>.<span class="pl-smi">remove</span><span class="pl-pse">}</span></span>&lt;/<span class="pl-ent">button</span>&gt;</span>
+<span class="pl-s">  <span class="pl-pds">`</span></span>}
+
+  <span class="pl-en">init</span>() {
+    <span class="pl-v">this</span>.<span class="pl-en">render</span>()
+    .<span class="pl-en">on</span>(<span class="pl-s"><span class="pl-pds">'</span>click<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>.remove<span class="pl-pds">'</span></span>, <span class="pl-smi">e</span> <span class="pl-k">=&gt;</span> <span class="pl-v">this</span>.<span class="pl-en">publish</span>(<span class="pl-s"><span class="pl-pds">'</span>remove<span class="pl-pds">'</span></span>))
+    .<span class="pl-en">on</span>(<span class="pl-s"><span class="pl-pds">'</span>dblclick<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>.desc<span class="pl-pds">'</span></span>, <span class="pl-smi">e</span> <span class="pl-k">=&gt;</span> <span class="pl-v">this</span>.<span class="pl-en">edit</span>(e))
+    .<span class="pl-en">on</span>(<span class="pl-s"><span class="pl-pds">'</span>keyup<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>.desc<span class="pl-pds">'</span></span>, <span class="pl-smi">e</span> <span class="pl-k">=&gt;</span> <span class="pl-v">this</span>.<span class="pl-en">save</span>(e))
+    .<span class="pl-en">on</span>(<span class="pl-s"><span class="pl-pds">'</span>focusout<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>.desc<span class="pl-pds">'</span></span>, <span class="pl-smi">e</span> <span class="pl-k">=&gt;</span> <span class="pl-v">this</span>.<span class="pl-en">render</span>())
+  }
+
+  <span class="pl-en">edit</span>(<span class="pl-smi">e</span>) {
+    <span class="pl-smi">e</span>.<span class="pl-c1">target</span>.<span class="pl-c1">removeAttribute</span>(<span class="pl-s"><span class="pl-pds">'</span>readonly<span class="pl-pds">'</span></span>)
+    <span class="pl-smi">e</span>.<span class="pl-c1">target</span>.<span class="pl-c1">focus</span>()
+  }
+
+  <span class="pl-en">save</span>(<span class="pl-smi">e</span>) {
+    <span class="pl-k">if</span> (<span class="pl-smi">e</span>.<span class="pl-smi">keyCode</span> <span class="pl-k">==</span> <span class="pl-c1">13</span>)
+      <span class="pl-v">this</span>.<span class="pl-c1">set</span>({ desc<span class="pl-k">:</span> <span class="pl-smi">e</span>.<span class="pl-c1">target</span>.<span class="pl-c1">value</span> })
+  }
+}
+
+<span class="pl-smi">TodoItem</span>.<span class="pl-smi">styles</span> <span class="pl-k">=</span> csjs<span class="pl-s"><span class="pl-pds">`</span></span>
+<span class="pl-s">  :host {</span>
+<span class="pl-s">    display: block;</span>
+<span class="pl-s">    width: 100%;</span>
+<span class="pl-s">    padding: 7px;</span>
+<span class="pl-s">    background: white;</span>
+<span class="pl-s">    border: 1px solid whitesmoke;</span>
+<span class="pl-s">  }</span>
+<span class="pl-s"></span>
+<span class="pl-s">  :host[done=true] .desc[readonly] {</span>
+<span class="pl-s">    text-decoration: line-through;</span>
+<span class="pl-s">  }</span>
+<span class="pl-s"></span>
+<span class="pl-s">  input.desc {</span>
+<span class="pl-s">    width: 85%;</span>
+<span class="pl-s">    font-size: 14px;</span>
+<span class="pl-s">  }</span>
+<span class="pl-s"></span>
+<span class="pl-s">  .remove {</span>
+<span class="pl-s">    display: none;</span>
+<span class="pl-s">    background: transparent;</span>
+<span class="pl-s">    font-size: 16px;</span>
+<span class="pl-s">    border: none;</span>
+<span class="pl-s">    padding: 4px;</span>
+<span class="pl-s">    cursor: pointer;</span>
+<span class="pl-s">    float: right;</span>
+<span class="pl-s">    color: <span class="pl-s1"><span class="pl-pse">${</span><span class="pl-smi">theme</span>.<span class="pl-smi">red</span><span class="pl-pse">}</span></span>;</span>
+<span class="pl-s">  }</span>
+<span class="pl-s"><span class="pl-pds">`</span></span>
+
+<span class="pl-smi">TodoItem</span>.<span class="pl-en">register</span>(<span class="pl-s"><span class="pl-pds">'</span>todo-item<span class="pl-pds">'</span></span>)
+</pre></div>
+
+<p>You can check the complete components for more details: <a href="https://github.com/felipeccastro/html-component/blob/master/src/todo-list.js">todo-list</a>, <a href="https://github.com/felipeccastro/html-component/blob/master/src/todo-item.js">todo-item</a> and <a href="https://github.com/felipeccastro/html-component/blob/master/src/todo-summary.js">todo-summary</a>.</p>
+
+<h2>
+<a id="components" class="anchor" href="#components" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Components</h2>
+
+<p>The guidelines for building maintainable components with this approach are more or less similar to what we see in other frameworks:</p>
+
+<ul>
+<li>keep components small and focused</li>
+<li>single file components: template + behavior + styles together (group by feature, not by technology)</li>
+<li>parent components can communicate with child components, but without accessing their inner DOM</li>
+<li>child components only emit events to notify parents, avoid modifying parents directly</li>
+<li>sibling components don't talk to each other</li>
+</ul>
+
+<p>The easiest way of seeing these principles all in practice is reading the sample Todo App implementation in this repo.</p>
+
+<h2>
+<a id="how-does-it-work" class="anchor" href="#how-does-it-work" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How does it work</h2>
+
+<p><code>HTMLComponent</code> is a small base class wrapping the native <code>HTMLElement</code>.
+It provides a few helpers to make it easier to adopt this style of development:</p>
+
+<ul>
+<li>shortcuts for common DOM methods (like <code>this.on('click', ...)</code> and <code>this.publish('some-event')</code>)</li>
+<li>support for event delegation, so components can be re-rendered without losing their events</li>
+<li>
+<code>.get()</code> and <code>.set()</code> based on html attributes (similar to "props" in React)</li>
+<li>changes to props automatically re-render components, greatly reducing the amount of manual DOM manipulation necessary</li>
+<li>html and csjs tagged template helpers for enabling syntax highlighting</li>
+<li>styles get scoped to the custom element, e.g. <code>h1 { color: red }</code> becomes <code>todo-item h1 { color: red }</code>
+</li>
+</ul>
+
+<h2>
+<a id="dependencies" class="anchor" href="#dependencies" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Dependencies</h2>
+
+<ul>
+<li>
+<a href="https://github.com/WebReflection/document-register-element">document-register-element.js</a> (Custom Elements v1 polyfill): not required for Chrome</li>
+<li>
+<a href="https://github.com/WebReflection/dom4">dom4.js</a> (DOM4 methods polyfills): optional, but makes it way easier to work with the DOM</li>
+<li>
+<a href="https://polyfill.io/v2/docs/">polyfill.io</a>: optional, builds custom ES5 polyfills for older browsers.</li>
+</ul>
+
+<h2>
+<a id="build" class="anchor" href="#build" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Build</h2>
+
+<p>If you're developing on Chrome latest, <em>no build step is necessary</em>. No file watchers, no just in time compilation, just run ES6 natively.
+For production (<code>npm run build</code>), this project uses <code>Babel</code> to compile ES6 to ES5 and <code>postcss</code> to add vendor prefixes to the component styles.</p>
+
+<h2>
+<a id="editor" class="anchor" href="#editor" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Editor</h2>
+
+<p>Having templates, styles and behaviors in the same js file can be challenging to some editors.
+The screenshot above was taken with Atom on the default javascript syntax, which automatically uses the html syntax highlighting for tagged template strings using a tag called <code>html</code>.
+For css, I'm using the <code>csjs</code> syntax highlighting and autocomplete, but not the actual tagged template helper.</p>
+
+<h2>
+<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Getting Started</h2>
+
+<p>Clone this project and modify it as you wish!</p>
+
+<h2>
+<a id="faq" class="anchor" href="#faq" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>FAQ</h2>
+
+<h3>
+<a id="oh-great-another-mvc-framework" class="anchor" href="#oh-great-another-mvc-framework" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Oh great, another MVC framework...</h3>
+
+<p>This is not a framework, much less MVC. This is more like a boilerplate web project with some very optionated development approaches.</p>
+
+<h3>
+<a id="how-is-it-different-from-reactangularvue" class="anchor" href="#how-is-it-different-from-reactangularvue" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How is it different from React/Angular/Vue...?</h3>
+
+<p>These frameworks all have built their own non-standard model of components, parallel to the native browser functionalities.
+They also build on the approach of abstracting the DOM and having a state/model object being the single source of truth, leaving the DOM manipulation entirely to the framework. While there are benefits to this approach, it also comes with a cost.
+Using vanilla Custom Elements and ES6 means the DOM is the source of truth, and you'll manipulate it directly, but don't panic! Not only the DOM api is much better to work with these days, but having it split over components that can be easily re-rendered from a template also makes it much simpler to build powerful UIs.</p>
+
+<h3>
+<a id="why-not-polymer" class="anchor" href="#why-not-polymer" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Why not Polymer?</h3>
+
+<p>I like very much of the idea behind Polymer, having a small framework on top of all the 4 Web Components technologies (Templates, HTML Imports, Shadow DOM and Custom Elements) and overall push the adoption of Web Standards. However, the framework is entirely dependent on the stability of the polyfills, and some technologies are harder to polyfill than others (like Shadow DOM, for example). It also doesn't inspire a lot of confidence the fact that until today, not all browsers have agreed to implement all of these technologies. They did agree to implement Custom Elements v1, though, so depending only on that seems like a safe ground to proceed.</p>
+
+<h3>
+<a id="what-about-performance-is-it-webscaletm" class="anchor" href="#what-about-performance-is-it-webscaletm" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What about performance? Is it webscale(TM)?</h3>
+
+<p>You'll have complete control over what happens on the DOM, so how fast it is depends on how well you know vanilla javascript.
+The main polyfill, document-register-element, is based on native  MutationObservers (which is pretty fast), so there's no inherent technical reason for this approach to have performance issues.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">html-component maintained by <a href="https://github.com/felipeccastro">felipeccastro</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
