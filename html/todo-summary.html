@@ -1,0 +1,95 @@
+<template>
+  <label class="items-left">
+    {{props.active}} {{itemsLeft}}
+  </label>
+  <section class="filters">
+  {{#filters}}
+    <button data-filter="{{.}}" class="filter">
+      {{.}}
+    </button>
+  {{/filters}}
+  </section>
+  <button class="clear-completed {{^completed}} hidden {{/completed}}}">
+    Clear completed
+  </button>
+</template>
+
+<script>
+  class TodoSummary extends HTMLComponent {
+
+    init() {
+      this.render()
+      .on('click', '.filter', e => this.changeFilter(e))
+      .on('click', '.clear-completed', e => this.publish('clear-completed'))
+    }
+
+    get total() { return this.props.active + this.props.completed }
+    get filters() { return [ 'all', 'active', 'completed' ] }
+
+    get itemsLeft() {
+      return `${this.props.active == 1 ? 'item' : 'items'} left`
+    }
+
+    changeFilter(e) {
+      var filter = e.target.dataset.filter
+      this.set({ filter: filter })
+      this.publish('change-filter', filter)
+    }
+  }
+
+  customElements.define('todo-summary', TodoSummary)
+</script>
+
+<style>
+  :host {
+    display: block;
+    padding: 7px;
+  }
+
+  :host[active="0"][completed="0"] {
+    display: none;
+  }
+
+  .items-left {
+    display: inline-block;
+    font-size: 15px;
+    color: #aaa;
+  }
+
+  .filters {
+    margin-left: auto;
+    margin-right: auto;
+    width: 185px;
+    margin-top: -19px;
+  }
+
+  .filter:first-letter {
+    text-transform:capitalize;
+  }
+
+  .filter:focus {
+    outline: none;
+  }
+
+  .filter.selected {
+    border: 1px solid #ef9a9a;
+  }
+
+  button {
+    cursor: pointer;
+    border: none;
+    background: white;
+    font-size: 13px;
+    color: #aaa;
+    border: 1px solid transparent;
+  }
+
+  button:hover {
+    text-decoration: underline;
+  }
+
+  .clear-completed {
+    float: right;
+    margin-top: -23px;
+  }
+</style>

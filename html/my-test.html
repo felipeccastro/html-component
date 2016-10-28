@@ -1,0 +1,20 @@
+<template>
+  <h1>Hi, {{name}}!</h1>
+  <p>Welcome!</p>
+</template>
+
+<script>
+  class MyTest extends HTMLComponent {
+    init() {
+      this.render()
+    }
+  }
+
+  customElements.define('my-test', MyTest)
+</script>
+
+<style>
+  h1 {
+    color: red;
+  }
+</style>

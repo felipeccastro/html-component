@@ -1,0 +1,92 @@
+<template>
+  <input type="checkbox" {{#props.done}} checked {{/props.done}} />
+  <input type="text" class="desc" readonly value="{{props.desc}}" />
+  <button class="remove">&#10005;</button>
+</template>
+
+<script>
+
+  class TodoItem extends HTMLComponent {
+
+    init() {
+      this.render()
+      .on('change', '[type=checkbox]', e => this.toggleDone(e))
+      .on('click', '.remove', e => this.publish('remove'))
+      .on('dblclick', '.desc', e => this.edit(e))
+      .on('keyup', '.desc', e => this.save(e))
+      .on('focusout', '.desc', e => this.render())
+    }
+
+    edit(e) {
+      e.target.removeAttribute('readonly')
+      e.target.focus()
+    }
+
+    save(e) {
+      if (e.keyCode == 13)
+        this.set({ desc: e.target.value })
+    }
+
+    toggleDone(e) {
+      this.set({ done: e.target.checked })
+      this.publish('toggled')
+    }
+  }
+
+  customElements.define('todo-item', TodoItem)
+
+</script>
+
+<style>
+  :host {
+    display: block;
+    width: 100%;
+    padding: 7px;
+    background: white;
+    border: 1px solid whitesmoke;
+  }
+
+  :host:hover,
+  :host:hover .desc[readonly] {
+    background: whitesmoke;
+  }
+
+  :host[done=true] .desc[readonly] {
+    text-decoration: line-through;
+  }
+
+  :host:hover .remove {
+    display: inline-block;
+  }
+
+  input.desc {
+    width: 85%;
+    font-size: 14px;
+  }
+
+  input.desc[readonly] {
+    border: none;
+  }
+
+  input[type=checkbox] {
+    width: 20px;
+    height: 20px;
+    position: relative;
+    top: 5px;
+  }
+
+  .remove {
+    display: none;
+    background: transparent;
+    font-size: 16px;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    float: right;
+    color: #ef5350;
+  }
+
+  .remove:hover {
+    color: #d32f2f;
+  }
+</style>

@@ -10,40 +10,18 @@
 
   <body>
 
-    <h1>Todos</h1>
+    <h1>Test</h1>
     <div id="container">
-
       <todo-list></todo-list>
-
     </div>
 
-    <script src="lib/document-register-element.js"></script>
-    <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
     <script src="lib/dom4.js"></script>
+    <script src="lib/hogan-3.0.2.min.js"></script>
 
+    <script src="lib/html-component-dev-runtime.js"></script>
     <script>
-      loadScripts([
-        'html-component',
-        'theme',
-        'todo-item',
-        'todo-summary',
-        'todo-list'
-      ])
-
-      function loadScripts(files) {
-        var dir = 'src' // Development (ES6 native, no babel)
-        // var dir = 'dist' // Production (ES5 transpiled with Babel)
-
-        files.forEach(function(file) {
-          var script = document.createElement("script")
-          script.type = "text/javascript"
-          script.src = dir + '/' + file + '.js'
-          script.async = false
-          document.body.appendChild(script)
-        })
-      }
+      loadComps('html-component todo-item todo-summary todo-list')
     </script>
-
   </body>
 
 </html>

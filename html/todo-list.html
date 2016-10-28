@@ -1,0 +1,110 @@
+<template>
+  <form class="actions">
+    <input type="checkbox" class="toggle-all" />
+    <input type="text" class="new-todo"
+      placeholder="What needs to be done?">
+  </form>
+  <section class="todos">
+  {{#items}}
+    <todo-item done="{{done}}" desc="{{desc}}"></todo-item>
+  {{/items}}
+  </section>
+  <todo-summary></todo-summary>
+</template>
+
+<script>
+  class TodoList extends HTMLComponent {
+
+    init() {
+      this.render()
+      .on('submit', '.actions', e => this.addTodo(e))
+      .on('change', '.toggle-all', e => this.toggleAll(e))
+      .on('toggled', 'todo-item', e => this.updateSummary())
+      .on('remove', 'todo-item', e => e.target.remove())
+      .on('clear-completed', 'todo-summary', e => this.clearCompleted())
+      .on('change-filter', 'todo-summary', e => this.changeFilter(e))
+      .afterEach(e => { this.updateSummary(), this.storeList() })
+
+      var savedItems = localStorage.getItem('my-todos')
+      if (savedItems) {
+        this.render({ items: JSON.parse(savedItems) })
+      }
+
+      this.updateSummary()
+
+      this.newTodo = this.query('.new-todo')
+      this.toggleAll = this.query('.toggle-all')
+      this.todoList = this.query('.todos')
+      this.summary = this.query('todo-summary')
+    }
+
+    get todos() { this.queryAll('todo-item') }
+    get active() { return this.queryAll('todo-item:not([done=true])') }
+    get completed() { return this.queryAll('todo-item[done=true]') }
+
+    addTodo(e) {
+      e.preventDefault()
+      var newTodoDesc = this.newTodo.value.trim()
+      if (!newTodoDesc) return false
+
+      var item = TodoItem.create({ desc: newTodoDesc })
+      this.todoList.prepend(item)
+
+      this.newTodo.value = ''
+      this.newTodo.focus()
+    }
+
+    toggleAll(e) {
+      this.todos.forEach(item => item.set({ done: e.target.checked }))
+    }
+
+    clearCompleted() {
+      this.completed.forEach(item => item.remove())
+      this.toggleAll.checked = false
+    }
+
+    changeFilter(e) {
+      this.active.forEach(item => item.toggle(e.detail == 'completed'))
+      this.completed.forEach(item => item.toggle(e.detail == 'active'))
+    }
+
+    updateSummary() {
+      this.summary.set({
+        active: this.active.length,
+        completed: this.completed.length
+      })
+    }
+
+    storeList(e) {
+      setTimeout(() => {
+        var items = this.todos.map(item => item.props)
+        localStorage.setItem('my-todos', JSON.stringify(items))
+      }, 10)
+    }
+
+  }
+
+  customElements.define('todo-list', TodoList)
+</script>
+
+<style>
+  .actions {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 7px;
+  }
+  .new-todo {
+    font-size: 16px;
+    line-height: 28px;
+    border: none;
+    width: 85%;
+    padding-left: 5px;
+  }
+  .toggle-all {
+    width: 20px;
+    height: 20px;
+    position: relative;
+    top: 5px;
+  }
+</style>

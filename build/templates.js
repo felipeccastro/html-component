@@ -1,0 +1,2 @@
+window.templates = {};
+templates['my-test'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<h1>Hi, ");t.b(t.v(t.f("name",c,p,0)));t.b("!</h1>");t.b("\n" + i);t.b("  <p>Welcome!</p>");return t.fl(); },partials: {}, subs: {  }});
