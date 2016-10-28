@@ -1,4 +1,4 @@
-<template>
+<template id="todo-summary">
   <label class="items-left">
     {{props.active}} {{itemsLeft}}
   </label>
@@ -9,9 +9,63 @@
     </button>
   {{/filters}}
   </section>
-  <button class="clear-completed {{^completed}} hidden {{/completed}}}">
+  <button class="clear-completed" hidden="{{noItems}}">
     Clear completed
   </button>
+
+  <style>
+    :host {
+      display: block;
+      padding: 7px;
+    }
+
+    :host[active="0"][completed="0"] {
+      display: none;
+    }
+
+    .items-left {
+      display: inline-block;
+      font-size: 15px;
+      color: #aaa;
+    }
+
+    .filters {
+      margin-left: auto;
+      margin-right: auto;
+      width: 185px;
+      margin-top: -19px;
+    }
+
+    .filter:first-letter {
+      text-transform:capitalize;
+    }
+
+    .filter:focus {
+      outline: none;
+    }
+
+    .filter.selected {
+      border: 1px solid #ef9a9a;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: white;
+      font-size: 13px;
+      color: #aaa;
+      border: 1px solid transparent;
+    }
+
+    button:hover {
+      text-decoration: underline;
+    }
+
+    .clear-completed {
+      float: right;
+      margin-top: -23px;
+    }
+  </style>
 </template>
 
 <script>
@@ -30,6 +84,8 @@
       return `${this.props.active == 1 ? 'item' : 'items'} left`
     }
 
+    get noItems() { return this.total == 0 }
+
     changeFilter(e) {
       var filter = e.target.dataset.filter
       this.set({ filter: filter })
@@ -37,59 +93,5 @@
     }
   }
 
-  customElements.define('todo-summary', TodoSummary)
+  TodoSummary.register()
 </script>
-
-<style>
-  :host {
-    display: block;
-    padding: 7px;
-  }
-
-  :host[active="0"][completed="0"] {
-    display: none;
-  }
-
-  .items-left {
-    display: inline-block;
-    font-size: 15px;
-    color: #aaa;
-  }
-
-  .filters {
-    margin-left: auto;
-    margin-right: auto;
-    width: 185px;
-    margin-top: -19px;
-  }
-
-  .filter:first-letter {
-    text-transform:capitalize;
-  }
-
-  .filter:focus {
-    outline: none;
-  }
-
-  .filter.selected {
-    border: 1px solid #ef9a9a;
-  }
-
-  button {
-    cursor: pointer;
-    border: none;
-    background: white;
-    font-size: 13px;
-    color: #aaa;
-    border: 1px solid transparent;
-  }
-
-  button:hover {
-    text-decoration: underline;
-  }
-
-  .clear-completed {
-    float: right;
-    margin-top: -23px;
-  }
-</style>

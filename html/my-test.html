@@ -1,6 +1,12 @@
-<template>
+<template id="my-test">
   <h1>Hi, {{name}}!</h1>
   <p>Welcome!</p>
+
+  <style>
+    h1 {
+      color: red;
+    }
+  </style>
 </template>
 
 <script>
@@ -10,11 +16,5 @@
     }
   }
 
-  customElements.define('my-test', MyTest)
+  MyTest.register()
 </script>
-
-<style>
-  h1 {
-    color: red;
-  }
-</style>

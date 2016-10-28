@@ -1,15 +1,40 @@
-<template>
+<template id="todo-list">
+
   <form class="actions">
     <input type="checkbox" class="toggle-all" />
     <input type="text" class="new-todo"
       placeholder="What needs to be done?">
   </form>
+
   <section class="todos">
-  {{#items}}
-    <todo-item done="{{done}}" desc="{{desc}}"></todo-item>
-  {{/items}}
+    {{#items}}
+      <todo-item done="{{done}}" desc="{{desc}}"></todo-item>
+    {{/items}}
   </section>
+
   <todo-summary></todo-summary>
+
+  <style>
+    .actions {
+      display: block;
+      width: 100%;
+      margin: 0;
+      padding: 7px;
+    }
+    .new-todo {
+      font-size: 16px;
+      line-height: 28px;
+      border: none;
+      width: 85%;
+      padding-left: 5px;
+    }
+    .toggle-all {
+      width: 20px;
+      height: 20px;
+      position: relative;
+      top: 5px;
+    }
+  </style>
 </template>
 
 <script>
@@ -27,31 +52,27 @@
 
       var savedItems = localStorage.getItem('my-todos')
       if (savedItems) {
-        this.render({ items: JSON.parse(savedItems) })
+        this.items = JSON.parse(savedItems)
+        this.render()
+        setTimeout(() => this.updateSummary(), 10)
       }
-
-      this.updateSummary()
-
-      this.newTodo = this.query('.new-todo')
-      this.toggleAll = this.query('.toggle-all')
-      this.todoList = this.query('.todos')
-      this.summary = this.query('todo-summary')
     }
 
-    get todos() { this.queryAll('todo-item') }
+    get todos() { return this.queryAll('todo-item') }
     get active() { return this.queryAll('todo-item:not([done=true])') }
     get completed() { return this.queryAll('todo-item[done=true]') }
 
     addTodo(e) {
       e.preventDefault()
-      var newTodoDesc = this.newTodo.value.trim()
+      var newTodo = this.query('.new-todo')
+      var newTodoDesc = newTodo.value.trim()
       if (!newTodoDesc) return false
 
       var item = TodoItem.create({ desc: newTodoDesc })
-      this.todoList.prepend(item)
+      this.query('.todos').prepend(item)
 
-      this.newTodo.value = ''
-      this.newTodo.focus()
+      newTodo.value = ''
+      newTodo.focus()
     }
 
     toggleAll(e) {
@@ -60,7 +81,7 @@
 
     clearCompleted() {
       this.completed.forEach(item => item.remove())
-      this.toggleAll.checked = false
+      this.query('.toggle-all').checked = false
     }
 
     changeFilter(e) {
@@ -69,42 +90,18 @@
     }
 
     updateSummary() {
-      this.summary.set({
+      this.query('todo-summary').set({
         active: this.active.length,
         completed: this.completed.length
       })
     }
 
     storeList(e) {
-      setTimeout(() => {
-        var items = this.todos.map(item => item.props)
-        localStorage.setItem('my-todos', JSON.stringify(items))
-      }, 10)
+      var items = this.todos.map(item => item.props)
+      localStorage.setItem('my-todos', JSON.stringify(items))
     }
 
   }
 
-  customElements.define('todo-list', TodoList)
+  TodoList.register()
 </script>
-
-<style>
-  .actions {
-    display: block;
-    width: 100%;
-    margin: 0;
-    padding: 7px;
-  }
-  .new-todo {
-    font-size: 16px;
-    line-height: 28px;
-    border: none;
-    width: 85%;
-    padding-left: 5px;
-  }
-  .toggle-all {
-    width: 20px;
-    height: 20px;
-    position: relative;
-    top: 5px;
-  }
-</style>

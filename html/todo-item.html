@@ -1,7 +1,61 @@
-<template>
-  <input type="checkbox" {{#props.done}} checked {{/props.done}} />
+<template id="todo-item">
+  <input type="checkbox" checked="{{props.done}}" />
   <input type="text" class="desc" readonly value="{{props.desc}}" />
   <button class="remove">&#10005;</button>
+
+  <style>
+    :host {
+      display: block;
+      width: 100%;
+      padding: 7px;
+      background: white;
+      border: 1px solid whitesmoke;
+    }
+
+    :host:hover,
+    :host:hover .desc[readonly] {
+      background: whitesmoke;
+    }
+
+    :host[done=true] .desc[readonly] {
+      text-decoration: line-through;
+    }
+
+    :host:hover .remove {
+      display: inline-block;
+    }
+
+    input.desc {
+      width: 85%;
+      font-size: 14px;
+    }
+
+    input.desc[readonly] {
+      border: none;
+    }
+
+    input[type=checkbox] {
+      width: 20px;
+      height: 20px;
+      position: relative;
+      top: 5px;
+    }
+
+    .remove {
+      display: none;
+      background: transparent;
+      font-size: 16px;
+      border: none;
+      padding: 4px;
+      cursor: pointer;
+      float: right;
+      color: #ef5350;
+    }
+
+    .remove:hover {
+      color: #d32f2f;
+    }
+  </style>
 </template>
 
 <script>
@@ -33,60 +87,6 @@
     }
   }
 
-  customElements.define('todo-item', TodoItem)
+  TodoItem.register()
 
 </script>
-
-<style>
-  :host {
-    display: block;
-    width: 100%;
-    padding: 7px;
-    background: white;
-    border: 1px solid whitesmoke;
-  }
-
-  :host:hover,
-  :host:hover .desc[readonly] {
-    background: whitesmoke;
-  }
-
-  :host[done=true] .desc[readonly] {
-    text-decoration: line-through;
-  }
-
-  :host:hover .remove {
-    display: inline-block;
-  }
-
-  input.desc {
-    width: 85%;
-    font-size: 14px;
-  }
-
-  input.desc[readonly] {
-    border: none;
-  }
-
-  input[type=checkbox] {
-    width: 20px;
-    height: 20px;
-    position: relative;
-    top: 5px;
-  }
-
-  .remove {
-    display: none;
-    background: transparent;
-    font-size: 16px;
-    border: none;
-    padding: 4px;
-    cursor: pointer;
-    float: right;
-    color: #ef5350;
-  }
-
-  .remove:hover {
-    color: #d32f2f;
-  }
-</style>

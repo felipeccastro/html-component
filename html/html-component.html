@@ -2,19 +2,20 @@
 // Base class for creating Web Components
 window.HTMLComponent = class HTMLComponent extends HTMLElement {
 
+  // element tag name, from MyComponent to my-component
 	static get is() {
-		return this.nodeName.toLowerCase()
+    return this.name
+      .replace(/([a-z][A-Z])/g, (g) => `${g[0]}-${g[1]}`).toLowerCase()
 	}
 
-	// Required by the custom elements polyfill
-	constructor(_) {
-		return (_ = super(_)).init(), _;
-	}
+	connectedCallback() {
+    this.init()
+  }
 
-	// override on custom elements
-	init() {
-		this.render()
-	}
+  // override on custom elements
+  init() {
+    this.render()
+  }
 
 	static create(props) {
 		return new this().set(props)
@@ -101,31 +102,128 @@ window.HTMLComponent = class HTMLComponent extends HTMLElement {
 
 	// using compiled mustache templates by default
   template(data) {
-		data.props = this.props
-    var tmpl = window.templates[this.constructor.is]
+		var tagName = this.constructor.is
+    var tmpl = HTMLComponentTemplates[tagName]
     return tmpl.render(data)
   }
 
 	// Render template with props and replaces inner html
-	render(data) {
-		// Optionally mark a section to not be replaced on re-renders
-		var fixed = this.query('[fixed]')
-
+	render() {
 		// Helper function for innerHTML, required by the custom elements polyfill
-		innerHTML(this, this.template(data))
-
-		if (fixed) {
-			this.query('[fixed]').replaceWith(fixed)
-		}
-
+		innerHTML(this, this.template(this))
+    fixBooleanAttributes(this)
 		return this
 	}
+
+
+  // Define custom element and register template + styles if needed
+	static register() {
+    var tagName = this.is
+
+    if (HTMLComponent.registerTemplates) {
+      // get html import's document for finding the template tag
+      // optionally the template might be inlined in the main document
+      var templateDoc = document.currentScript && document.currentScript.ownerDocument ?
+          document.currentScript.ownerDocument : document
+
+      var templateTag = templateDoc.getElementById(tagName)
+      if (templateTag) {
+        // need to clone template before we can use it
+        templateTag = templateTag.cloneNode(true)
+
+        // try to find a style tag in the template
+        var compStyle = templateTag.content.querySelector('style')
+        if (compStyle) {
+
+          // scope component's style and append it to document.head
+          var stylesTag = document.getElementById('html-components-styles')
+          if (!stylesTag) {
+            stylesTag = document.createElement('style')
+            stylesTag.id = 'html-components-styles'
+            document.head.appendChild(stylesTag)
+          }
+
+          stylesTag.append(scopeCss(compStyle.innerHTML, tagName))
+          // remove style tag so the mustache template is just what's left
+          templateTag.content.removeChild(compStyle)
+        }
+
+        // store compiled mustache template
+        var template = templateTag.innerHTML.trim()
+        if (template) {
+          HTMLComponentTemplates[tagName] = Hogan.compile(template)
+        }
+      }
+    }
+
+    customElements.define(this.is, this)
+
+    // ensure component is accessible on global scope
+    window[tagName] = this
+	}
 }
+
+// for dev only, use precompiled assets for production instead
+HTMLComponent.registerTemplates = true
+
+HTMLComponent.booleanAttributes =
+  'checked disabled hidden selected autocomplete autofocus'.split(' ')
+
+// Add or remove boolean attributes depending on their value
+// this is needed to make mustache templates compatible with template tags
+function fixBooleanAttributes(component) {
+  HTMLComponent.booleanAttributes.forEach(attr => {
+    component.queryAll(`[${attr}]`).forEach(elm => {
+      if (elm.getAttribute(attr).match(new RegExp(`true|1|${attr}`))) {
+        elm.setAttribute(attr, attr)
+      } else {
+        elm.removeAttribute(attr)
+      }
+    })
+  })
+}
+
+if (!window.HTMLComponentTemplates)
+  window.HTMLComponentTemplates = {}
 
 // If using native custom elements, the innerHTML helper won't exist
 if (!window.innerHTML) {
 	window.innerHTML = function(elm, html) {
-		elm.innerHTML  = html
+		elm.innerHTML = html
 	}
+}
+
+/*
+	Scope a css block to a parent selector
+ 	e.g.
+		 :host { display: block }
+	   .foo { color: blue }
+	becomes
+	  my-component { display: block }
+		my-component .foo { color: blue }
+  https://github.com/dfcreative/scope-css
+*/
+function scopeCss (css, parent) {
+	if (!css) return css
+	if (!parent) return css
+
+	function replace (css, replacer) {
+		//strip block comments
+		css = css.replace(/\/\*([\s\S]*?)\*\//g, '')
+		return css.replace(/([^\r\n,{}]+)(,(?=[^}]*{)|\s*{)/g, replacer)
+	}
+
+	css = replace(css, parent + ' $1$2')
+
+	//regexp.escape
+	var parentRe = parent.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+	//replace self-selectors
+	css = css.replace(new RegExp('(' + parentRe + ')\\s*\\1(?=[\\s\\r\\n,{])', 'g'), '$1')
+	//replace `:host` with parent
+	css = css.replace(new RegExp('(' + parentRe + ')\\s*:host', 'g'), '$1')
+	//revoke wrongly replaced @ statements, like @supports, @import, @media etc.
+	css = css.replace(new RegExp('(' + parentRe + ')\\s*@', 'g'), '@')
+
+	return css
 }
 </script>

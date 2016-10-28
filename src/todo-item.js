@@ -86,3 +86,5 @@ TodoItem.styles = csjs`
 `
 
 TodoItem.register('todo-item')
+
+HTMLComponent.booleanAttributes.push('done')
