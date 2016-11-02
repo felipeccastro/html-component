@@ -5,6 +5,8 @@ const scopeCss = require('scope-css')
 const postcss  = require('postcss')
 const autoprefixer = require('autoprefixer')
 const babel = require('babel-core')
+const cheerio = require('cheerio')
+const changeCase = require('change-case')
 
 const inputDir = 'html'
 const outputDir = 'build'
@@ -14,12 +16,15 @@ var styles = {}
 var scripts = {}
 
 fs.readdirSync(inputDir).forEach(file => {
-  var comp = fs.readFileSync(`./${inputDir}/${file}`).toString()
+  var html = fs.readFileSync(`./${inputDir}/${file}`).toString()
 
-  var name = file.replace('.html', '')
-  templates[name] = extractTagContent(comp, 'template')
-  styles[name] = extractTagContent(comp, 'style')
-  scripts[name] = extractTagContent(comp, 'script')
+  var $ = cheerio.load(html)
+  var name = $('template').attr('id')
+
+  styles[name] = $('style').html()
+  $('style').remove()
+  templates[name] = $('template').html()
+  scripts[name] = $('script').html()
 })
 
 writeFile('templates.js', compileTemplates(templates))
@@ -32,19 +37,13 @@ function writeFile(name, content) {
   fs.writeFileSync(`./${outputDir}/${name}`, content, 'utf8')
 }
 
-function extractTagContent(html, tag) {
-  var match = html.match("\<"+tag+"\>(.|\n)*?\<\/"+tag+"\>")
-  if (!match) return null;
-  return match[0].replace(new RegExp("<\/?"+tag+">", "g"), '').trim()
-}
-
 function compileTemplates(templates) {
-  var output = 'window.templates = {};'
+  var output = 'HTMLComponentTemplates = { shouldCompile: false }'
   for(var name in templates) {
     var template = templates[name]
     if (!template) continue
     var compiled = hogan.compile(template, { asString: 1 })
-    output += `\ntemplates['${name}'] = new Hogan.Template(${compiled});`
+    output += `\n HTMLComponentTemplates['${name}'] = new Hogan.Template(${compiled});`
   }
   return output
 }
@@ -68,6 +67,10 @@ function transpileScripts(scripts) {
   var babelOptions = { presets: [ 'es2015' ], plugins: [ 'iife-wrap' ] }
   for(var name in scripts) {
     var script = scripts[name]
+    var className = changeCase.pascalCase(name)
+    // Ensure component is available on global namespace
+    script = script.replace(`class ${className}`,
+        `window.${className} = class ${className}`)
     var compiled = babel.transform(script, babelOptions).code
     output += '\n' + compiled
   }

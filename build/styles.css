@@ -1,4 +1,132 @@
 
-my-test h1 {
-    color: red;
-  }
+
+todo-item {
+      display: block;
+      width: 100%;
+      padding: 7px;
+      background: white;
+      border: 1px solid whitesmoke;
+    }
+
+todo-item:hover,
+todo-item:hover .desc[readonly] {
+      background: whitesmoke;
+    }
+
+todo-item[done=true] .desc[readonly] {
+      text-decoration: line-through;
+    }
+
+todo-item:hover .remove {
+      display: inline-block;
+    }
+
+todo-item     input.desc {
+      width: 85%;
+      font-size: 14px;
+    }
+
+todo-item     input.desc[readonly] {
+      border: none;
+    }
+
+todo-item     input[type=checkbox] {
+      width: 20px;
+      height: 20px;
+      position: relative;
+      top: 5px;
+    }
+
+todo-item     .remove {
+      display: none;
+      background: transparent;
+      font-size: 16px;
+      border: none;
+      padding: 4px;
+      cursor: pointer;
+      float: right;
+      color: #ef5350;
+    }
+
+todo-item     .remove:hover {
+      color: #d32f2f;
+    }
+  
+
+todo-list     .actions {
+      display: block;
+      width: 100%;
+      margin: 0;
+      padding: 7px;
+    }
+todo-list     .new-todo {
+      font-size: 16px;
+      line-height: 28px;
+      border: none;
+      width: 85%;
+      padding-left: 5px;
+    }
+todo-list     .toggle-all {
+      width: 20px;
+      height: 20px;
+      position: relative;
+      top: 5px;
+    }
+  
+
+todo-summary {
+      display: block;
+      padding: 7px;
+    }
+
+todo-summary[active="0"][completed="0"] {
+      display: none;
+    }
+
+todo-summary     .items-left {
+      display: inline-block;
+      font-size: 15px;
+      color: #aaa;
+    }
+
+todo-summary     .filters {
+      margin-left: auto;
+      margin-right: auto;
+      width: 185px;
+      margin-top: -19px;
+    }
+
+todo-summary     .filter:first-letter {
+      text-transform:capitalize;
+    }
+
+todo-summary     .filter:hover {
+      text-decoration: none;
+    }
+
+todo-summary     .filter:focus {
+      outline: none;
+    }
+
+todo-summary     .filter.selected {
+      border-bottom: 1px solid #ef9a9a;
+    }
+
+todo-summary     button {
+      cursor: pointer;
+      border: none;
+      background: white;
+      font-size: 13px;
+      color: #aaa;
+      border: 1px solid transparent;
+    }
+
+todo-summary     button:hover {
+      text-decoration: underline;
+    }
+
+todo-summary     .clear-completed {
+      float: right;
+      margin-top: -23px;
+    }
+  

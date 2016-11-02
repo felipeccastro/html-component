@@ -99,7 +99,11 @@ window.HTMLComponent = class HTMLComponent extends HTMLElement {
 
 	show() { this.classList.remove('hidden') }
 	hide() { this.classList.add('hidden') }
-	toggle(showOrHide) { this.classList.toggle('hidden', showOrHide) }
+	toggle(showOrHide) {
+    showOrHide
+      ? this.setAttribute('hidden', 'hidden')
+      : this.removeAttribute('hidden')
+  }
 
 	// using compiled mustache templates by default
   template(data) {
@@ -121,7 +125,7 @@ window.HTMLComponent = class HTMLComponent extends HTMLElement {
 	static register() {
     var tagName = this.is
 
-    if (HTMLComponent.registerTemplates) {
+    if (HTMLComponentTemplates.shouldCompile) {
       // get html import's document for finding the template tag
       // optionally the template might be inlined in the main document
       var templateDoc = document.currentScript && document.currentScript.ownerDocument ?
@@ -158,14 +162,15 @@ window.HTMLComponent = class HTMLComponent extends HTMLElement {
     }
 
     customElements.define(this.is, this)
-
-    // ensure component is accessible on global scope
-    window[tagName] = this
 	}
 }
 
+if (!window.HTMLComponentTemplates)
+  window.HTMLComponentTemplates = {}
+
 // for dev only, use precompiled assets for production instead
-HTMLComponent.registerTemplates = true
+if (typeof(HTMLComponentTemplates.shouldCompile) == 'undefined')
+  HTMLComponentTemplates.shouldCompile = true
 
 HTMLComponent.booleanAttributes =
   'checked disabled hidden selected autocomplete autofocus'.split(' ')
@@ -183,9 +188,6 @@ function fixBooleanAttributes(component) {
     })
   })
 }
-
-if (!window.HTMLComponentTemplates)
-  window.HTMLComponentTemplates = {}
 
 // If using native custom elements, the innerHTML helper won't exist
 if (!window.innerHTML) {
