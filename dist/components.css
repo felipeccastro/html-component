@@ -1,5 +1,50 @@
 
 
+  body {
+    font-family: -apple-system,
+      BlinkMacSystemFont, "Segoe UI",
+      Roboto, Helvetica, Arial, sans-serif,
+      "Apple Color Emoji", "Segoe UI Emoji",
+      "Segoe UI Symbol";
+    background: whitesmoke;
+    font-weight: 300;
+    color: #333;
+  }
+
+  h1 {
+    font-weight: 200;
+    text-align: center;
+    font-size: 40px;
+    margin: 0;
+    margin-bottom: 10px;
+  }
+
+  #container {
+    display: block;
+    background: white;
+    width: 99%;
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 2px 2px 0 #aaa;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  /* Theme variables */
+
+  /* UTF8 Icons */
+  .icon-remove:after {
+    content: '✕';
+  }
+
+
 todo-item {
       display: block;
       width: 100%;
@@ -45,7 +90,7 @@ todo-item     .remove {
       padding: 4px;
       cursor: pointer;
       float: right;
-      color: #ef5350;
+      color: #ef9a9a;
     }
 
 todo-item     .remove:hover {
@@ -59,6 +104,7 @@ todo-list     .actions {
       margin: 0;
       padding: 7px;
     }
+
 todo-list     .new-todo {
       font-size: 16px;
       line-height: 28px;
@@ -66,6 +112,7 @@ todo-list     .new-todo {
       width: 85%;
       padding-left: 5px;
     }
+
 todo-list     .toggle-all {
       width: 20px;
       height: 20px;
@@ -92,7 +139,7 @@ todo-summary     .items-left {
 todo-summary     .filters {
       margin-left: auto;
       margin-right: auto;
-      width: 185px;
+      width: 195px;
       margin-top: -19px;
     }
 

@@ -18,6 +18,8 @@
     "change-case": "^3.0.0",
     "cheerio": "^0.22.0",
     "hogan.js": "^3.0.2",
+    "postcss-cssnext": "^2.8.0",
+    "postcss-custom-properties": "^5.0.1",
     "scope-css": "^1.0.4"
   }
 }

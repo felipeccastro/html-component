@@ -1,3 +1,4 @@
+
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 ;
@@ -9,14 +10,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		if (!(instance instanceof Constructor)) {
 			throw new TypeError("Cannot call a class as a function");
 		}
-	}
-
-	function _possibleConstructorReturn(self, call) {
-		if (!self) {
-			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-		}
-
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
 	}
 
 	var _createClass = function () {
@@ -36,6 +29,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			return Constructor;
 		};
 	}();
+
+	function _possibleConstructorReturn(self, call) {
+		if (!self) {
+			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+		}
+
+		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+	}
 
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
@@ -57,25 +58,23 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	window.HTMLComponent = function (_HTMLElement) {
 		_inherits(HTMLComponent, _HTMLElement);
 
-		_createClass(HTMLComponent, [{
-			key: 'is',
-			get: function get() {
-				return this.nodeName.toLowerCase();
-			}
-		}]);
-
-		// Required by the custom elements polyfill
-		function HTMLComponent(_) {
-			var _this, _ret;
-
+		function HTMLComponent() {
 			_classCallCheck(this, HTMLComponent);
 
-			return _ret = ((_ = (_this = _possibleConstructorReturn(this, (HTMLComponent.__proto__ || Object.getPrototypeOf(HTMLComponent)).call(this, _)), _this)).init(), _), _possibleConstructorReturn(_this, _ret);
+			return _possibleConstructorReturn(this, (HTMLComponent.__proto__ || Object.getPrototypeOf(HTMLComponent)).apply(this, arguments));
 		}
 
 		_createClass(HTMLComponent, [{
+			key: 'connectedCallback',
+			value: function connectedCallback() {
+				this.init();
+				this.publish('ready');
+			}
+		}, {
 			key: 'init',
-			value: function init() {/* override on custom elements */}
+			value: function init() {
+				this.render();
+			}
 		}, {
 			key: 'on',
 			value: function on(eventName, selector, callback) {
@@ -153,18 +152,21 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		}, {
 			key: 'toggle',
 			value: function toggle(showOrHide) {
-				this.classList.toggle('hidden', showOrHide);
+				showOrHide ? this.setAttribute('hidden', 'hidden') : this.removeAttribute('hidden');
+			}
+		}, {
+			key: 'template',
+			value: function template(data) {
+				var tagName = this.constructor.is;
+				var tmpl = HTMLComponentTemplates[tagName];
+				return tmpl.render(data);
 			}
 		}, {
 			key: 'render',
 			value: function render() {
-				// Optionally mark a section to not be replaced on re-renders
-				var fixed = this.query('[fixed]');
 				// Helper function for innerHTML, required by the custom elements polyfill
-				innerHTML(this, this.template(this.props));
-				if (fixed) {
-					this.query('[fixed]').replaceWith(fixed);
-				}
+				innerHTML(this, this.template(this));
+				fixBooleanAttributes(this);
 				return this;
 			}
 		}, {
@@ -185,83 +187,84 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			}
 		}, {
 			key: 'register',
-			value: function register(tagName) {
-				customElements.define(tagName, this);
-				// scope the styles and add them to head
-				registerStyles(tagName, this.styles);
-				// ensure element is accessible on global scope
-				window[this.name] = this;
+			value: function register() {
+				var tagName = this.is;
+
+				if (HTMLComponentTemplates.shouldCompile) {
+					// get html import's document for finding the template tag
+					// optionally the template might be inlined in the main document
+					var templateDoc = document.currentScript && document.currentScript.ownerDocument ? document.currentScript.ownerDocument : document;
+
+					var templateTag = templateDoc.getElementById(tagName);
+					if (templateTag) {
+						// need to clone template before we can use it
+						templateTag = templateTag.cloneNode(true);
+
+						// try to find a style tag in the template
+						var compStyle = templateTag.content.querySelector('style');
+						if (compStyle) {
+
+							// scope component's style and append it to document.head
+							var stylesTag = document.getElementById('html-components-styles');
+							if (!stylesTag) {
+								stylesTag = document.createElement('style');
+								stylesTag.id = 'html-components-styles';
+								document.head.appendChild(stylesTag);
+							}
+
+							stylesTag.append(scopeCss(compStyle.innerHTML, tagName));
+							// remove style tag so the mustache template is just what's left
+							templateTag.content.removeChild(compStyle);
+						}
+
+						// store compiled mustache template
+						var template = templateTag.innerHTML.trim();
+						if (template) {
+							HTMLComponentTemplates[tagName] = Hogan.compile(template);
+						}
+					}
+				}
+
+				customElements.define(this.is, this);
+			}
+		}, {
+			key: 'is',
+			get: function get() {
+				return this.name.replace(/([a-z][A-Z])/g, function (g) {
+					return g[0] + '-' + g[1];
+				}).toLowerCase();
 			}
 		}]);
 
 		return HTMLComponent;
 	}(HTMLElement);
 
-	// Tagged templates for activating syntax highlighting
-	// http://www.2ality.com/2015/01/template-strings-html.html
-	window.html = function html(literalSections) {
-		// Use raw literal sections: we don’t want
-		// backslashes (\n etc.) to be interpreted
-		var raw = literalSections.raw;
+	if (!window.HTMLComponentTemplates) window.HTMLComponentTemplates = {};
 
-		var result = '';
+	// for dev only, use precompiled assets for production instead
+	if (typeof HTMLComponentTemplates.shouldCompile == 'undefined') HTMLComponentTemplates.shouldCompile = true;
 
-		for (var _len = arguments.length, substs = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-			substs[_key - 1] = arguments[_key];
-		}
+	HTMLComponent.booleanAttributes = 'checked disabled hidden selected autocomplete autofocus'.split(' ');
 
-		substs.forEach(function (subst, i) {
-			// Retrieve the literal section preceding
-			// the current substitution
-			var lit = raw[i];
-
-			// In the example, map() returns an array:
-			// If substitution is an array (and not a string),
-			// we turn it into a string
-			if (Array.isArray(subst)) {
-				subst = subst.join('');
-			}
-
-			// If the substitution is preceded by a dollar sign,
-			// we escape special characters in it
-			if (lit.endsWith('$')) {
-				subst = htmlEscape(subst);
-				lit = lit.slice(0, -1);
-			}
-			result += lit;
-			result += subst;
+	// Add or remove boolean attributes depending on their value
+	// this is needed to make mustache templates compatible with template tags
+	function fixBooleanAttributes(component) {
+		HTMLComponent.booleanAttributes.forEach(function (attr) {
+			component.queryAll('[' + attr + ']').forEach(function (elm) {
+				if (elm.getAttribute(attr).match(new RegExp('true|1|' + attr))) {
+					elm.setAttribute(attr, attr);
+				} else {
+					elm.removeAttribute(attr);
+				}
+			});
 		});
-		// Take care of last literal section
-		// (Never fails, because an empty template string
-		// produces one literal section, an empty string)
-		result += raw[raw.length - 1]; // (A)
-
-		return result;
-	};
-
-	function htmlEscape(str) {
-		if (!str) return '';
-		return str.replace(/&/g, '&amp;') // first!
-		.replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/`/g, '&#96;');
 	}
 
-	// Tagged template helper to enable syntax highlighting
-	window.csjs = function css(stylesheet) {
-		for (var _len2 = arguments.length, expressions = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-			expressions[_key2 - 1] = arguments[_key2];
-		}
-
-		return stylesheet.reduce(function (accumulator, part, i) {
-			return accumulator + expressions[i - 1] + part;
-		});
-	};
-
-	// Scope css and write style tag to head
-	function registerStyles(tagName, styles) {
-		if (!styles) return;
-		var styleTag = document.createElement('style');
-		styleTag.innerHTML = scopeCss(styles.trim(), tagName);
-		document.head.appendChild(styleTag);
+	// If using native custom elements, the innerHTML helper won't exist
+	if (!window.innerHTML) {
+		window.innerHTML = function (elm, html) {
+			elm.innerHTML = html;
+		};
 	}
 
 	/*
@@ -272,7 +275,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  	becomes
  	  my-component { display: block }
  		my-component .foo { color: blue }
- 
    https://github.com/dfcreative/scope-css
  */
 	function scopeCss(css, parent) {
@@ -298,34 +300,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 		return css;
 	}
-
-	// Helper required by the custom elements polyfill
-	// Ensures elements created with a template string are immediately upgraded to custom elements
-	/*! (C) Andrea Giammarchi - @WebReflection - Mit Style License */
-	// see https://github.com/WebReflection/document-register-element/issues/21#issuecomment-102020311
-	window.innerHTML = function (e) {
-		var t = "extends",
-		    n = e.registerElement,
-		    r = e.createElement("div"),
-		    i = "document-register-element",
-		    s = n.innerHTML,
-		    o,
-		    u;if (s) return s;try {
-			n.call(e, i, { prototype: Object.create(HTMLElement.prototype, { createdCallback: { value: Object } }) }), r.innerHTML = "<" + i + "></" + i + ">";if ("createdCallback" in r.querySelector(i)) return n.innerHTML = function (e, t) {
-				return e.innerHTML = t, e;
-			};
-		} catch (a) {}return u = [], o = function o(t) {
-			if ("createdCallback" in t || "attachedCallback" in t || "detachedCallback" in t || "attributeChangedCallback" in t) return;e.createElement.innerHTMLHelper = !0;for (var n = t.parentNode, r = t.getAttribute("is"), i = t.nodeName, s = e.createElement.apply(e, r ? [i, r] : [i]), o = t.attributes, u = 0, a = o.length, f, l; u < a; u++) {
-				f = o[u], s.setAttribute(f.name, f.value);
-			}s.createdCallback && (s.created = !0, s.createdCallback(), s.created = !1);while (l = t.firstChild) {
-				s.appendChild(l);
-			}e.createElement.innerHTMLHelper = !1, n && n.replaceChild(s, t);
-		}, (e.registerElement = function (i, s) {
-			var o = (s[t] ? s[t] + '[is="' + i + '"]' : i).toLowerCase();return u.indexOf(o) < 0 && u.push(o), n.apply(e, arguments);
-		}).innerHTML = function (e, t) {
-			e.innerHTML = t;for (var n = e.querySelectorAll(u.join(",")), r = n.length; r--; o(n[r])) {}return e;
-		};
-	}(document);
 })();
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -333,17 +307,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function () {
   'use strict';
-
-  var _templateObject = _taggedTemplateLiteral(['\n    <input type="checkbox" ', '>\n    <input type="text" class="desc" readonly value="$', '" />\n    <button class="remove">', '</button>\n  '], ['\n    <input type="checkbox" ', '>\n    <input type="text" class="desc" readonly value="$', '" />\n    <button class="remove">', '</button>\n  ']),
-      _templateObject2 = _taggedTemplateLiteral(['\n  :host {\n    display: block;\n    width: 100%;\n    padding: 7px;\n    background: white;\n    border: 1px solid whitesmoke;\n  }\n\n  :host:hover,\n  :host:hover .desc[readonly] {\n    background: whitesmoke;\n  }\n\n  :host[done=true] .desc[readonly] {\n    text-decoration: line-through;\n  }\n\n  :host:hover .remove {\n    display: inline-block;\n  }\n\n  input.desc {\n    width: 85%;\n    font-size: 14px;\n  }\n\n  input.desc[readonly] {\n    border: none;\n  }\n\n  input[type=checkbox] {\n    width: 20px;\n    height: 20px;\n    position: relative;\n    top: 5px;\n  }\n\n  .remove {\n    display: none;\n    background: transparent;\n    font-size: 16px;\n    border: none;\n    padding: 4px;\n    cursor: pointer;\n    float: right;\n    color: ', ';\n  }\n\n  .remove:hover {\n    color: ', ';\n  }\n'], ['\n  :host {\n    display: block;\n    width: 100%;\n    padding: 7px;\n    background: white;\n    border: 1px solid whitesmoke;\n  }\n\n  :host:hover,\n  :host:hover .desc[readonly] {\n    background: whitesmoke;\n  }\n\n  :host[done=true] .desc[readonly] {\n    text-decoration: line-through;\n  }\n\n  :host:hover .remove {\n    display: inline-block;\n  }\n\n  input.desc {\n    width: 85%;\n    font-size: 14px;\n  }\n\n  input.desc[readonly] {\n    border: none;\n  }\n\n  input[type=checkbox] {\n    width: 20px;\n    height: 20px;\n    position: relative;\n    top: 5px;\n  }\n\n  .remove {\n    display: none;\n    background: transparent;\n    font-size: 16px;\n    border: none;\n    padding: 4px;\n    cursor: pointer;\n    float: right;\n    color: ', ';\n  }\n\n  .remove:hover {\n    color: ', ';\n  }\n']);
-
-  function _taggedTemplateLiteral(strings, raw) {
-    return Object.freeze(Object.defineProperties(strings, {
-      raw: {
-        value: Object.freeze(raw)
-      }
-    }));
-  }
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -393,7 +356,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
   }
 
-  var TodoItem = function (_HTMLComponent) {
+  window.TodoItem = function (_HTMLComponent) {
     _inherits(TodoItem, _HTMLComponent);
 
     function TodoItem() {
@@ -403,11 +366,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     }
 
     _createClass(TodoItem, [{
-      key: 'template',
-      value: function template(todo) {
-        return html(_templateObject, todo.done ? 'checked' : '', todo.desc, icons.remove);
-      }
-    }, {
       key: 'init',
       value: function init() {
         var _this2 = this;
@@ -446,9 +404,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     return TodoItem;
   }(HTMLComponent);
 
-  TodoItem.styles = csjs(_templateObject2, theme.red, theme.darkRed);
-
-  TodoItem.register('todo-item');
+  TodoItem.register();
 })();
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -456,18 +412,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function () {
   'use strict';
-
-  var _templateObject = _taggedTemplateLiteral(['\n    <form class="actions">\n      <input type="checkbox" class="toggle-all" />\n      <input type="text" class="new-todo"\n        placeholder="What needs to be done?">\n    </form>\n    <section class="todos">\n    ', '\n    </section>\n    <todo-summary></todo-summary>\n  '], ['\n    <form class="actions">\n      <input type="checkbox" class="toggle-all" />\n      <input type="text" class="new-todo"\n        placeholder="What needs to be done?">\n    </form>\n    <section class="todos">\n    ', '\n    </section>\n    <todo-summary></todo-summary>\n  ']),
-      _templateObject2 = _taggedTemplateLiteral(['\n      <todo-item done="', '"\n                 desc="', '">\n      </todo-item>\n    '], ['\n      <todo-item done="', '"\n                 desc="', '">\n      </todo-item>\n    ']),
-      _templateObject3 = _taggedTemplateLiteral(['\n  .actions {\n    display: block;\n    width: 100%;\n    margin: 0;\n    padding: 7px;\n  }\n  .new-todo {\n    font-size: 16px;\n    line-height: 28px;\n    border: none;\n    width: 85%;\n    padding-left: 5px;\n  }\n  .toggle-all {\n    width: 20px;\n    height: 20px;\n    position: relative;\n    top: 5px;\n  }\n'], ['\n  .actions {\n    display: block;\n    width: 100%;\n    margin: 0;\n    padding: 7px;\n  }\n  .new-todo {\n    font-size: 16px;\n    line-height: 28px;\n    border: none;\n    width: 85%;\n    padding-left: 5px;\n  }\n  .toggle-all {\n    width: 20px;\n    height: 20px;\n    position: relative;\n    top: 5px;\n  }\n']);
-
-  function _taggedTemplateLiteral(strings, raw) {
-    return Object.freeze(Object.defineProperties(strings, {
-      raw: {
-        value: Object.freeze(raw)
-      }
-    }));
-  }
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -517,7 +461,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
   }
 
-  var TodoList = function (_HTMLComponent) {
+  window.TodoList = function (_HTMLComponent) {
     _inherits(TodoList, _HTMLComponent);
 
     function TodoList() {
@@ -527,18 +471,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     }
 
     _createClass(TodoList, [{
-      key: 'template',
-      value: function template(props) {
-        return html(_templateObject, this.items.map(function (todo) {
-          return html(_templateObject2, todo.done, todo.desc);
-        }));
-      }
-    }, {
       key: 'init',
       value: function init() {
         var _this2 = this;
-
-        this.items = [];
 
         this.render().on('submit', '.actions', function (e) {
           return _this2.addTodo(e);
@@ -548,6 +483,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           return _this2.updateSummary();
         }).on('remove', 'todo-item', function (e) {
           return e.target.remove();
+        }).on('ready', 'todo-summary', function (e) {
+          return _this2.updateSummary();
         }).on('clear-completed', 'todo-summary', function (e) {
           return _this2.clearCompleted();
         }).on('change-filter', 'todo-summary', function (e) {
@@ -556,13 +493,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           _this2.updateSummary(), _this2.storeList();
         });
 
-        var itemsSaved = localStorage.getItem('my-todos');
-        if (itemsSaved) {
-          this.items = JSON.parse(itemsSaved);
+        var savedItems = localStorage.getItem('my-todos');
+        if (savedItems) {
+          this.items = JSON.parse(savedItems);
           this.render();
         }
-
-        this.updateSummary();
       }
     }, {
       key: 'addTodo',
@@ -581,7 +516,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     }, {
       key: 'toggleAll',
       value: function toggleAll(e) {
-        this.queryAll('todo-item').forEach(function (item) {
+        this.todos.forEach(function (item) {
           return item.set({ done: e.target.checked });
         });
       }
@@ -614,14 +549,15 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     }, {
       key: 'storeList',
       value: function storeList(e) {
-        var _this3 = this;
-
-        setTimeout(function () {
-          var items = _this3.queryAll('todo-item').map(function (item) {
-            return item.props;
-          });
-          localStorage.setItem('my-todos', JSON.stringify(items));
-        }, 10);
+        var items = this.todos.map(function (item) {
+          return item.props;
+        });
+        localStorage.setItem('my-todos', JSON.stringify(items));
+      }
+    }, {
+      key: 'todos',
+      get: function get() {
+        return this.queryAll('todo-item');
       }
     }, {
       key: 'active',
@@ -638,9 +574,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     return TodoList;
   }(HTMLComponent);
 
-  TodoList.styles = csjs(_templateObject3);
-
-  TodoList.register('todo-list');
+  TodoList.register();
 })();
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -648,18 +582,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function () {
   'use strict';
-
-  var _templateObject = _taggedTemplateLiteral(['\n    <label class="items-left">\n      ', ' ', ' left\n    </label>\n    <section class="filters">\n    ', '\n    </section>\n    <button class="clear-completed ', '">\n      Clear completed\n    </button>\n  '], ['\n    <label class="items-left">\n      ', ' ', ' left\n    </label>\n    <section class="filters">\n    ', '\n    </section>\n    <button class="clear-completed ', '">\n      Clear completed\n    </button>\n  ']),
-      _templateObject2 = _taggedTemplateLiteral(['\n      <button data-filter="', '" class="filter\n        ', '">\n        ', '\n      </button>\n    '], ['\n      <button data-filter="', '" class="filter\n        ', '">\n        ', '\n      </button>\n    ']),
-      _templateObject3 = _taggedTemplateLiteral(['\n  :host {\n    display: block;\n    padding: 7px;\n  }\n\n  :host[active="0"][completed="0"] {\n    display: none;\n  }\n\n  .items-left {\n    display: inline-block;\n    font-size: 15px;\n    color: ', ';\n  }\n\n  .filters {\n    margin-left: auto;\n    margin-right: auto;\n    width: 185px;\n    margin-top: -19px;\n  }\n\n  .filter:first-letter {\n    text-transform:capitalize;\n  }\n\n  .filter:focus {\n    outline: none;\n  }\n\n  .filter.selected {\n    border: 1px solid ', ';\n  }\n\n  button {\n    cursor: pointer;\n    border: none;\n    background: white;\n    font-size: 13px;\n    color: ', ';\n    border: 1px solid transparent;\n  }\n\n  button:hover {\n    text-decoration: underline;\n  }\n\n  .clear-completed {\n    float: right;\n    margin-top: -23px;\n  }\n'], ['\n  :host {\n    display: block;\n    padding: 7px;\n  }\n\n  :host[active="0"][completed="0"] {\n    display: none;\n  }\n\n  .items-left {\n    display: inline-block;\n    font-size: 15px;\n    color: ', ';\n  }\n\n  .filters {\n    margin-left: auto;\n    margin-right: auto;\n    width: 185px;\n    margin-top: -19px;\n  }\n\n  .filter:first-letter {\n    text-transform:capitalize;\n  }\n\n  .filter:focus {\n    outline: none;\n  }\n\n  .filter.selected {\n    border: 1px solid ', ';\n  }\n\n  button {\n    cursor: pointer;\n    border: none;\n    background: white;\n    font-size: 13px;\n    color: ', ';\n    border: 1px solid transparent;\n  }\n\n  button:hover {\n    text-decoration: underline;\n  }\n\n  .clear-completed {\n    float: right;\n    margin-top: -23px;\n  }\n']);
-
-  function _taggedTemplateLiteral(strings, raw) {
-    return Object.freeze(Object.defineProperties(strings, {
-      raw: {
-        value: Object.freeze(raw)
-      }
-    }));
-  }
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -709,7 +631,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
   }
 
-  var TodoSummary = function (_HTMLComponent) {
+  window.TodoSummary = function (_HTMLComponent) {
     _inherits(TodoSummary, _HTMLComponent);
 
     function TodoSummary() {
@@ -719,13 +641,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     }
 
     _createClass(TodoSummary, [{
-      key: 'template',
-      value: function template(props) {
-        return html(_templateObject, props.active, props.active == 1 ? 'item' : 'items', this.filters.map(function (filter) {
-          return html(_templateObject2, filter, filter == props.filter ? 'selected' : '', filter);
-        }), props.completed == 0 ? 'hidden' : '');
-      }
-    }, {
       key: 'init',
       value: function init() {
         var _this2 = this;
@@ -739,26 +654,39 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     }, {
       key: 'changeFilter',
       value: function changeFilter(e) {
-        var filter = e.target.dataset.filter;
+        var filter = e.target.textContent.trim();
         this.set({ filter: filter });
         this.publish('change-filter', filter);
       }
     }, {
       key: 'total',
       get: function get() {
-        return this.get('active') + this.get('completed');
+        return this.props.active + this.props.completed;
+      }
+    }, {
+      key: 'noItems',
+      get: function get() {
+        return this.total == 0;
+      }
+    }, {
+      key: 'itemsLeft',
+      get: function get() {
+        return (this.props.active == 1 ? 'item' : 'items') + ' left';
       }
     }, {
       key: 'filters',
       get: function get() {
-        return ['all', 'active', 'completed'];
+        var _this3 = this;
+
+        return ['all', 'active', 'completed'].map(function (filter) {
+          var selected = filter == _this3.props.filter ? 'selected' : '';
+          return { desc: filter, selected: selected };
+        });
       }
     }]);
 
     return TodoSummary;
   }(HTMLComponent);
 
-  TodoSummary.styles = csjs(_templateObject3, theme.gray, theme.lightRed, theme.gray);
-
-  TodoSummary.register('todo-summary');
+  TodoSummary.register();
 })();

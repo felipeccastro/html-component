@@ -3,23 +3,25 @@ const fs = require('fs')
 const hogan = require('hogan.js')
 const scopeCss = require('scope-css')
 const postcss  = require('postcss')
-const autoprefixer = require('autoprefixer')
+const cssNext = require('postcss-cssnext')
 const babel = require('babel-core')
 const cheerio = require('cheerio')
 const changeCase = require('change-case')
 
-const inputDir = 'html'
-const outputDir = 'build'
+const inputDir = 'src'
+const outputDir = 'dist'
 
 var templates = {}
 var styles = {}
 var scripts = {}
 
 fs.readdirSync(inputDir).forEach(file => {
+  if (!file.match('.html')) return
+
   var html = fs.readFileSync(`./${inputDir}/${file}`).toString()
 
   var $ = cheerio.load(html)
-  var name = $('template').attr('id')
+  var name = $('template').attr('id') || file.replace('.html', '')
 
   styles[name] = $('style').html()
   $('style').remove()
@@ -27,8 +29,9 @@ fs.readdirSync(inputDir).forEach(file => {
   scripts[name] = $('script').html()
 })
 
-writeFile('components.js', compileTemplates(templates) +'\n'+ transpileScripts(scripts))
+writeFile('templates.js', compileTemplates(templates))
 writeFile('components.css', prefixStyles(scopeStyles(styles)))
+writeFile('components.js', transpileScripts(scripts))
 
 // ______________________________________________________________________
 
@@ -52,13 +55,16 @@ function scopeStyles(styles) {
   for(var name in styles) {
     var style = styles[name]
     if (!style) continue
-    output += '\n' + scopeCss(style, name)
+    if (name != 'app') { // special case: don't scope app.html
+      style = scopeCss(style, name)
+    }
+    output += '\n' + style
   }
   return output
 }
 
 function prefixStyles(styleString) {
-  return postcss([autoprefixer]).process(styleString).css
+  return postcss([cssNext]).process(styleString).css
 }
 
 function transpileScripts(scripts) {
@@ -66,6 +72,7 @@ function transpileScripts(scripts) {
   var babelOptions = { presets: [ 'es2015' ], plugins: [ 'iife-wrap' ] }
   for(var name in scripts) {
     var script = scripts[name]
+    if (!script) continue
     var className = changeCase.pascalCase(name)
     // Ensure component is available on global namespace
     script = script.replace(`class ${className}`,
