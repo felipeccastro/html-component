@@ -1,48 +1,48 @@
+/* Theme variables */
 
 
-  body {
-    font-family: -apple-system,
-      BlinkMacSystemFont, "Segoe UI",
-      Roboto, Helvetica, Arial, sans-serif,
-      "Apple Color Emoji", "Segoe UI Emoji",
-      "Segoe UI Symbol";
-    background: whitesmoke;
-    font-weight: 300;
-    color: #333;
-  }
+/* UTF8 Icons */
+.icon-remove:after {
+  content: '✕';
+}
 
-  h1 {
-    font-weight: 200;
-    text-align: center;
-    font-size: 40px;
-    margin: 0;
-    margin-bottom: 10px;
-  }
 
-  #container {
-    display: block;
-    background: white;
-    width: 99%;
-    max-width: 450px;
-    margin-left: auto;
-    margin-right: auto;
-    box-shadow: 0 2px 2px 0 #aaa;
-  }
+body {
+  font-family: -apple-system,
+    BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol";
+  background: whitesmoke;
+  font-weight: 300;
+  color: #333;
+}
 
-  * {
-    box-sizing: border-box;
-  }
+h1 {
+  font-weight: 200;
+  text-align: center;
+  font-size: 40px;
+  margin: 0;
+  margin-bottom: 10px;
+}
 
-  [hidden] {
-    display: none !important;
-  }
+#container {
+  display: block;
+  background: white;
+  width: 99%;
+  max-width: 450px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 2px 2px 0 #aaa;
+}
 
-  /* Theme variables */
+* {
+  box-sizing: border-box;
+}
 
-  /* UTF8 Icons */
-  .icon-remove:after {
-    content: '✕';
-  }
+[hidden] {
+  display: none !important;
+}
 
 
 todo-item {

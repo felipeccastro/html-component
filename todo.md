@@ -5,13 +5,12 @@ x put templates in the same scripts.js file, before the component classes
 x rename to components.js and .css
 x review dir structure (move todo to samples, src for htmlcomponent, remove old code)
 x add cssnext and use variables (or mustache)
-- test on ie and firefox
+x move icons to css/svg
 - add some unit testing (like index-dev but index-test)
 - update readme (write about group by functionality not by feature, and how dom is the model)
+- test on ie and firefox
 
 maybe later
-- move icons to css/svg
-- try to split app.css + icons, themes into a different css file
 - try to separate html-component in its own js file
 
 techs

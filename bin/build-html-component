@@ -3,7 +3,7 @@ const fs = require('fs')
 const hogan = require('hogan.js')
 const scopeCss = require('scope-css')
 const postcss  = require('postcss')
-const cssNext = require('postcss-cssnext')
+const postcssNext = require('postcss-cssnext')
 const babel = require('babel-core')
 const cheerio = require('cheerio')
 const changeCase = require('change-case')
@@ -15,23 +15,28 @@ var templates = {}
 var styles = {}
 var scripts = {}
 
+console.time('Build process')
+
 fs.readdirSync(inputDir).forEach(file => {
   if (!file.match('.html')) return
 
   var html = fs.readFileSync(`./${inputDir}/${file}`).toString()
 
   var $ = cheerio.load(html)
-  var name = $('template').attr('id') || file.replace('.html', '')
+  var name = $('template').attr('id')
 
   styles[name] = $('style').html()
-  $('style').remove()
-  templates[name] = $('template').html()
+  templates[name] = $('template').find('style').remove().end().html()
   scripts[name] = $('script').html()
 })
 
+var mainCss = fs.readFileSync(`./${inputDir}/app.css`).toString()
+
 writeFile('templates.js', compileTemplates(templates))
-writeFile('components.css', prefixStyles(scopeStyles(styles)))
+writeFile('components.css', cssNext(mainCss + scopeStyles(styles)))
 writeFile('components.js', transpileScripts(scripts))
+
+console.timeEnd('Build process')
 
 // ______________________________________________________________________
 
@@ -41,7 +46,7 @@ function writeFile(name, content) {
 
 function compileTemplates(templates) {
   var output = 'HTMLComponentTemplates = { shouldCompile: false }'
-  for(var name in templates) {
+  for (var name in templates) {
     var template = templates[name]
     if (!template) continue
     var compiled = hogan.compile(template, { asString: 1 })
@@ -52,25 +57,22 @@ function compileTemplates(templates) {
 
 function scopeStyles(styles) {
   var output = ''
-  for(var name in styles) {
+  for (var name in styles) {
     var style = styles[name]
     if (!style) continue
-    if (name != 'app') { // special case: don't scope app.html
-      style = scopeCss(style, name)
-    }
-    output += '\n' + style
+    output += '\n' + scopeCss(style, name)
   }
   return output
 }
 
-function prefixStyles(styleString) {
-  return postcss([cssNext]).process(styleString).css
+function cssNext(styleString) {
+  return postcss([postcssNext]).process(styleString).css
 }
 
 function transpileScripts(scripts) {
   var output = ''
   var babelOptions = { presets: [ 'es2015' ], plugins: [ 'iife-wrap' ] }
-  for(var name in scripts) {
+  for (var name in scripts) {
     var script = scripts[name]
     if (!script) continue
     var className = changeCase.pascalCase(name)
