@@ -1,0 +1,64 @@
+<title>Convenial</title>
+<meta name="app-name" content="Convenial" />
+<meta name="api-url" content="https://www.api.com" />
+
+<app-nav desktop-layout="top-icons" mobile-layout="left-drawer">
+
+  <!-- <link-view view="expense-form" title="New Expense"></link-view> -->
+
+</app-nav>
+
+<app-resource name="estados" source="/estados"></app-resource>
+<app-resource name="planos" source="/planos"></app-resource>
+
+<app-view id="intro" default-route>
+  <splash-screen cover="splash.png">
+    <a href="/" class="button primary block">SP</a>
+    <a href="/email-form" class="block">Outro</a>
+  </splash>
+</app-view>
+
+<app-view id="perfil-usuario" route="/perfil">
+  <data-form resource="usuarios">
+    <text-input name="nome"></text-input>
+    <text-input name="cep"></text-input>
+    <number-input name="idade" min="18" max="99"></number-input>
+    <button redirect="/planos">Próximo</button>
+  </data-form>
+</app-view>
+
+<app-view id="planos-lista" route="/planos">
+  <data-list resource="planos" link-to="/plano"
+      group-options="category-name:Category, date"
+      group-by="category-name"
+      sort-by="date desc"
+      export-options="csv,pdf">
+    <span name="category-icon" class="media"></span>
+    <label name="category-name" class="title"></label>
+    <span name="date" format="short-date" class="subtitle tag"></span>
+    <label name="notes" class="description"></label>
+    <label name="amount" class="strong currency"></label>
+  </data-list>
+  <data-filters list="planos">
+    <label class="divider">Co-participação</label>
+    <label class="desc muted">Explicação sobre co-participação</label>
+    <switch-input name="copay"></switch-input>
+  </data-filters>
+</app-view>
+
+<app-view id="plano-detalhes" route="/plano">
+  <data-form resource="planos" mode="readonly">
+    <h1 name="nome"></h1>
+
+  </data-form>
+</app-view>
+
+<app-view id="email-form" route="/email-form">
+  <data-form resource="emails">
+    <h1>Cadastre seu email</h1>
+    <h2>Seja avisado quando o sistema estiver disponível em sua região</h2>
+    <select name="estado" options="estados"></select>
+    <email-input name="email" required></text-input>
+    <button type="submit">Salvar</button>
+  </data-form>
+</app-view>

@@ -10,6 +10,7 @@ window.HTMLComponent = class HTMLComponent extends HTMLElement {
 
 	connectedCallback() {
     this.init()
+    this.publish('ready')
   }
 
   // override on custom elements

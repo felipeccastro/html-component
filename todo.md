@@ -1,17 +1,23 @@
 # TODO
 
-
-it's possible to keep using mustache but using
-checked="{{var}}" instead of {{#var}} checked {{/var}}
-so the html is valid
-(checked disabled hidden selected autocomplete autofocus )
-
+- fix build to work with styles inside templates (use jsdom)
+- put templates in the same scripts.js file, before the component classes
+- rename to components.js and .css
+- try to separate html-component in its own js file
+- review dir structure (move todo to samples, src for htmlcomponent, remove old code)
+- add cssnext and use variables (or mustache)
+- move icons to css/svg
+- test on ie and firefox
+- add some unit testing (like index-dev but index-test)
+- update readme (write about group by functionality not by feature, and how dom is the model)
 
 
 techs
 - html: mustache
 - css: postcss
 - js: es6 and dom4
+
+suffering from javascript fatigue? try native instead
 
 links:
 https://developers.google.com/web/fundamentals/getting-started/primers/customelements
@@ -25,34 +31,17 @@ goals
 
 x port todo components to html
 x remove polyfill from index-dev
-
-- fix clear completed
-
-- put templates in the same scripts.js file, in the correct order
-- build components.js and .css
-- try to separate html components in its own js file
-x make build automatically add window.className = class className
-- review dir structure (move todo to samples, src for htmlcomponent)
-- add cssnext and use variables (or mustache)
-- move icons to css/svg
-- update readme (write about group by functionality not by feature, and how dom is the model)
-- dev runtime, add script/style just once
-- try flexbox on todo summary
-- test on ie and firefox
-- fingerprint prod assets
+x fix clear completed
 
 to make html imports work
-- use template with mustache and boolean attrs
-- put style inside template so it doesn't get render before we scope it
-- append style to one style tag in head instead of creating multiples (dev)
+x use template with mustache and boolean attrs
+x put style inside template so it doesn't get render before we scope it
+x append style to one style tag in head instead of creating multiples (dev)
+x make build automatically add window.className = class className
 
 future: use index-dev for production without a build! \o/
 
 recommended to use chrome, optionally use a watcher to build on file change to dev on other browsers
-
-caveats
-- scope css don't fully scope (it leaks to children)
-- different syntax for mustache boolean attributes
 
 the dom is the state
 render(data) means data + props
@@ -65,6 +54,13 @@ readme: explain two uses
 basic: just inherit htmlcomponent and use es6 template strings (move innerhtml helper out of htmlcomponent), and your own build
 advanced: single page components, use custom build and dev runtime
 
-dom templating experiments:
-http://jsbin.com/dequfupumu/2/edit?html,js,output
-http://jsbin.com/dequfupumu/4/edit?html,js,output !
+how is it different from polymer?
+- use html imports only for dev, build .js and .css for prod
+- in production, polyfill only custom elements
+- uses a different/smaller standalone polyfill for custom elements
+- no shadow dom at all - just scoped css
+- no complex databinding - just mustache templates
+
+caveats
+- scope css don't fully scope (it can leak to children)
+- different syntax for mustache boolean attributes

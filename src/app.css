@@ -8,14 +8,15 @@ body {
   font-weight: 300;
   color: #333;
 }
+
 h1 {
   font-weight: 200;
   text-align: center;
-  text-transform: lowercase;
   font-size: 40px;
   margin: 0;
   margin-bottom: 10px;
 }
+
 #container {
   display: block;
   background: white;
@@ -25,9 +26,11 @@ h1 {
   margin-right: auto;
   box-shadow: 0 2px 2px 0 #aaa;
 }
+
 * {
   box-sizing: border-box;
 }
-.hidden {
+
+[hidden], .hidden {
   display: none !important;
 }

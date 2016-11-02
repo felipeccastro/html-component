@@ -4,8 +4,8 @@
   </label>
   <section class="filters">
   {{#filters}}
-    <button data-filter="{{.}}" class="filter">
-      {{.}}
+    <button class="filter {{selected}}">
+      {{desc}}
     </button>
   {{/filters}}
   </section>
@@ -40,12 +40,16 @@
       text-transform:capitalize;
     }
 
+    .filter:hover {
+      text-decoration: none;
+    }
+
     .filter:focus {
       outline: none;
     }
 
     .filter.selected {
-      border: 1px solid #ef9a9a;
+      border-bottom: 1px solid #ef9a9a;
     }
 
     button {
@@ -78,16 +82,22 @@
     }
 
     get total() { return this.props.active + this.props.completed }
-    get filters() { return [ 'all', 'active', 'completed' ] }
+
+    get noItems() { return this.total == 0 }
 
     get itemsLeft() {
       return `${this.props.active == 1 ? 'item' : 'items'} left`
     }
 
-    get noItems() { return this.total == 0 }
+    get filters() {
+      return [ 'all', 'active', 'completed' ].map(filter => {
+        var selected = filter == this.props.filter ? 'selected' : ''
+        return { desc: filter, selected: selected }
+      })
+    }
 
     changeFilter(e) {
-      var filter = e.target.dataset.filter
+      var filter = e.target.textContent.trim()
       this.set({ filter: filter })
       this.publish('change-filter', filter)
     }

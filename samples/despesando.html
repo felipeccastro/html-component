@@ -1,0 +1,61 @@
+
+<app-router desktop-layout="top-icons" mobile-layout="left-drawer">
+
+  <link-view view="expense-form" title="New Expense" default-route></link-view>
+  <link-view view="expense-list" title="All Expenses"></link-view>
+  <link-view view="expense-charts" title="Charts"></link-view>
+  <link-view view="user-profile" title="My Account"></link-view>
+
+</app-router>
+
+<app-resource name="expenses" storage="local"></app-resource>
+<app-resource name="categories" storage="local"></app-resource>
+<app-resource name="user" storage="local" single></app-resource>
+
+<app-view id="expense-form" route="/expense">
+  <data-form resource="expenses">
+    <h1 if="isNew">Add Expense</h1>
+    <h1 unless="isNew">Edit Expense</h1>
+    <smart-select name="category" options="categories" allow-new="true">
+    </smart-select>
+    <date-picker name="date" default-value="today"></date-picker>
+    <text-input name="notes" label="Notes" multiline="true"></text-input>
+    <number-input name="amount" prefix="$" label="Amount"></number-input>
+    <button type="submit">Save</button>
+  </data-form>
+</app-view>
+
+<app-view id="expense-list" route="/expenses">
+  <data-list resource="expenses" link-to="/expense"
+      group-options="category-name:Category, date"
+      group-by="category-name"
+      sort-by="date desc"
+      export-options="csv, pdf">
+    <span name="category-icon" class="media"></span>
+    <label name="category-name" class="title"></label>
+    <span name="date" format="short-date" class="subtitle tag"></span>
+    <label name="notes" class="description"></label>
+    <label name="amount" class="strong currency"></label>
+  </data-list>
+</app-view>
+
+<app-view id="expense-charts" route="/expense-charts">
+  <data-chart resource="expenses" type="bar"
+      group-options="category-name:Category, date-month:Month"
+      group-by="category-name">
+  </data-chart>
+</app-view>
+
+<app-view id="user-profile" route="/user-profile">
+  <data-form resource="user" mode="default-readonly">
+    <text-input name="first_name" layout="inline"></text-input>
+    <text-input name="last_name" layout="inline"></text-input>
+    <text-input name="company" layout="inline"></text-input>
+  </data-form>
+  <reset-password></reset-password>
+  <clear-storage></clear-storage>
+</app-view>
+
+<app-view id="login-form" route="/login">
+  <login-form></login-form>
+</app-view>

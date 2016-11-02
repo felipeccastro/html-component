@@ -46,6 +46,7 @@
       .on('change', '.toggle-all', e => this.toggleAll(e))
       .on('toggled', 'todo-item', e => this.updateSummary())
       .on('remove', 'todo-item', e => e.target.remove())
+      .on('ready', 'todo-summary', e => this.updateSummary())
       .on('clear-completed', 'todo-summary', e => this.clearCompleted())
       .on('change-filter', 'todo-summary', e => this.changeFilter(e))
       .afterEach(e => { this.updateSummary(), this.storeList() })
@@ -54,7 +55,6 @@
       if (savedItems) {
         this.items = JSON.parse(savedItems)
         this.render()
-        setTimeout(() => this.updateSummary(), 10)
       }
     }
 
