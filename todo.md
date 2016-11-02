@@ -1,6 +1,6 @@
 # TODO
 
-- fix build to work with styles inside templates (use jsdom)
+x fix build to work with styles inside templates (use jsdom)
 - put templates in the same scripts.js file, before the component classes
 - rename to components.js and .css
 - try to separate html-component in its own js file

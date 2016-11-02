@@ -27,9 +27,8 @@ fs.readdirSync(inputDir).forEach(file => {
   scripts[name] = $('script').html()
 })
 
-writeFile('templates.js', compileTemplates(templates))
-writeFile('styles.css', prefixStyles(scopeStyles(styles)))
-writeFile('scripts.js', transpileScripts(scripts))
+writeFile('components.js', compileTemplates(templates) +'\n'+ transpileScripts(scripts))
+writeFile('components.css', prefixStyles(scopeStyles(styles)))
 
 // ______________________________________________________________________
 
