@@ -33,8 +33,8 @@ Using native html imports + html-component, you can describe a component like th
   <!-- Mustache template -->
   <p>Hello {{props.to}}!</p>
 
-
-  <style> /* scoped to component */
+  <style> 
+    /* scoped to component */
     p { font-weight: bold }
   </style>
 </template>
