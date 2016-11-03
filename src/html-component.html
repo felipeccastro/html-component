@@ -10,7 +10,7 @@ window.HTMLComponent = class HTMLComponent extends HTMLElement {
 
 	connectedCallback() {
     this.init()
-    this.publish('ready')
+    this.emit('ready')
   }
 
   // override on custom elements
@@ -59,8 +59,8 @@ window.HTMLComponent = class HTMLComponent extends HTMLElement {
 		return this
 	}
 
-	// Publish events to notify parents of internal changes
-	publish(eventName, data) {
+	// Emit events to notify parents of internal changes
+	emit(eventName, data) {
 		this.dispatchEvent(new CustomEvent(eventName, {
 			bubbles: true,
 			detail: data
@@ -99,6 +99,7 @@ window.HTMLComponent = class HTMLComponent extends HTMLElement {
 
 	show() { this.classList.remove('hidden') }
 	hide() { this.classList.add('hidden') }
+
 	toggle(showOrHide) {
     showOrHide
       ? this.setAttribute('hidden', 'hidden')
@@ -114,63 +115,31 @@ window.HTMLComponent = class HTMLComponent extends HTMLElement {
 
 	// Render template with props and replaces inner html
 	render() {
-		// Helper function for innerHTML, required by the custom elements polyfill
-		innerHTML(this, this.template(this))
+		this.innerHTML = this.template(this)
     fixBooleanAttributes(this)
 		return this
 	}
 
-
-  // Define custom element and register template + styles if needed
+  // Define custom element, compile template and register styles if needed
 	static register() {
     var tagName = this.is
 
     if (HTMLComponentTemplates.shouldCompile) {
-      // get html import's document for finding the template tag
-      // optionally the template might be inlined in the main document
-      var templateDoc = document.currentScript && document.currentScript.ownerDocument ?
-          document.currentScript.ownerDocument : document
-
-      var templateTag = templateDoc.getElementById(tagName)
-      if (templateTag) {
-        // need to clone template before we can use it
-        templateTag = templateTag.cloneNode(true)
-
-        // try to find a style tag in the template
-        var compStyle = templateTag.content.querySelector('style')
-        if (compStyle) {
-
-          // scope component's style and append it to document.head
-          var stylesTag = document.getElementById('html-components-styles')
-          if (!stylesTag) {
-            stylesTag = document.createElement('style')
-            stylesTag.id = 'html-components-styles'
-            document.head.appendChild(stylesTag)
-          }
-
-          stylesTag.append(scopeCss(compStyle.innerHTML, tagName))
-          // remove style tag so the mustache template is just what's left
-          templateTag.content.removeChild(compStyle)
-        }
-
-        // store compiled mustache template
-        var template = templateTag.innerHTML.trim()
-        if (template) {
-          HTMLComponentTemplates[tagName] = Hogan.compile(template)
-        }
-      }
+      compileImportTemplate(tagName)
     }
 
-    customElements.define(this.is, this)
+    customElements.define(tagName, this)
 	}
 }
 
+// compiled mustache templates
 if (!window.HTMLComponentTemplates)
   window.HTMLComponentTemplates = {}
 
-// for dev only, use precompiled assets for production instead
-if (typeof(HTMLComponentTemplates.shouldCompile) == 'undefined')
+if (typeof(HTMLComponentTemplates.shouldCompile) == 'undefined') {
+  // for dev only, use precompiled assets for production instead
   HTMLComponentTemplates.shouldCompile = true
+}
 
 HTMLComponent.booleanAttributes =
   'checked disabled hidden selected autocomplete autofocus'.split(' ')
@@ -189,11 +158,40 @@ function fixBooleanAttributes(component) {
   })
 }
 
-// If using native custom elements, the innerHTML helper won't exist
-if (!window.innerHTML) {
-	window.innerHTML = function(elm, html) {
-		elm.innerHTML = html
-	}
+function compileImportTemplate(tagName) {
+  // get html import's document for finding the template tag
+  // optionally the template might be inlined in the main document
+  var templateDoc = document.currentScript && document.currentScript.ownerDocument ?
+      document.currentScript.ownerDocument : document
+
+  var templateTag = templateDoc.getElementById(tagName)
+  if (templateTag) {
+    // need to clone template before we can use it
+    templateTag = templateTag.cloneNode(true)
+
+    // try to find a style tag in the template
+    var compStyle = templateTag.content.querySelector('style')
+    if (compStyle) {
+
+      // scope component's style and append it to document.head
+      var stylesTag = document.getElementById('html-components-styles')
+      if (!stylesTag) {
+        stylesTag = document.createElement('style')
+        stylesTag.id = 'html-components-styles'
+        document.head.appendChild(stylesTag)
+      }
+
+      stylesTag.append(scopeCss(compStyle.innerHTML, tagName))
+      // remove style tag so the mustache template is just what's left
+      templateTag.content.removeChild(compStyle)
+    }
+
+    // store compiled mustache template
+    var template = templateTag.innerHTML.trim()
+    if (template) {
+      HTMLComponentTemplates[tagName] = Hogan.compile(template)
+    }
+  }
 }
 
 /*

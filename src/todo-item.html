@@ -65,7 +65,7 @@
     init() {
       this.render()
       .on('change', '[type=checkbox]', e => this.toggleDone(e))
-      .on('click', '.remove', e => this.publish('remove'))
+      .on('click', '.remove', e => this.emit('remove'))
       .on('dblclick', '.desc', e => this.edit(e))
       .on('keyup', '.desc', e => this.save(e))
       .on('focusout', '.desc', e => this.render())
@@ -83,7 +83,7 @@
 
     toggleDone(e) {
       this.set({ done: e.target.checked })
-      this.publish('toggled')
+      this.emit('toggled')
     }
   }
 

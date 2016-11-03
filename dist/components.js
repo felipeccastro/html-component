@@ -164,8 +164,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		}, {
 			key: 'render',
 			value: function render() {
-				// Helper function for innerHTML, required by the custom elements polyfill
-				innerHTML(this, this.template(this));
+				this.innerHTML = this.template(this);
 				fixBooleanAttributes(this);
 				return this;
 			}
@@ -239,10 +238,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		return HTMLComponent;
 	}(HTMLElement);
 
+	// compiled mustache templates
 	if (!window.HTMLComponentTemplates) window.HTMLComponentTemplates = {};
 
-	// for dev only, use precompiled assets for production instead
-	if (typeof HTMLComponentTemplates.shouldCompile == 'undefined') HTMLComponentTemplates.shouldCompile = true;
+	if (typeof HTMLComponentTemplates.shouldCompile == 'undefined') {
+		// for dev only, use precompiled assets for production instead
+		HTMLComponentTemplates.shouldCompile = true;
+	}
 
 	HTMLComponent.booleanAttributes = 'checked disabled hidden selected autocomplete autofocus'.split(' ');
 
@@ -258,13 +260,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				}
 			});
 		});
-	}
-
-	// If using native custom elements, the innerHTML helper won't exist
-	if (!window.innerHTML) {
-		window.innerHTML = function (elm, html) {
-			elm.innerHTML = html;
-		};
 	}
 
 	/*

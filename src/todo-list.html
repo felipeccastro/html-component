@@ -67,10 +67,9 @@
     addTodo(e) {
       e.preventDefault()
       var newTodo = this.query('.new-todo')
-      var newTodoDesc = newTodo.value.trim()
-      if (!newTodoDesc) return false
+      if (!newTodo.value) return false
 
-      var item = TodoItem.create({ desc: newTodoDesc })
+      var item = TodoItem.create({ desc: newTodo.value.trim() })
       this.query('.todos').prepend(item)
 
       newTodo.value = ''

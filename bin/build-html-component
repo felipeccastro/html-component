@@ -65,10 +65,6 @@ function scopeStyles(styles) {
   return output
 }
 
-function cssNext(styleString) {
-  return postcss([postcssNext]).process(styleString).css
-}
-
 function transpileScripts(scripts) {
   var output = ''
   var babelOptions = { presets: [ 'es2015' ], plugins: [ 'iife-wrap' ] }
@@ -83,4 +79,8 @@ function transpileScripts(scripts) {
     output += '\n' + compiled
   }
   return output
+}
+
+function cssNext(styleString) {
+  return postcss([postcssNext]).process(styleString).css
 }

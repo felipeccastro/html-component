@@ -6,19 +6,20 @@ x rename to components.js and .css
 x review dir structure (move todo to samples, src for htmlcomponent, remove old code)
 x add cssnext and use variables (or mustache)
 x move icons to css/svg
-- add some unit testing (like index-dev but index-test)
 - update readme (write about group by functionality not by feature, and how dom is the model)
+- add some unit testing (like index-dev but index-test)
 - test on ie and firefox
+- minify build
+- kebab case to camel case on props
 
-maybe later
-- try to separate html-component in its own js file
-
-techs
-- html: mustache
-- css: postcss
-- js: es6 and dom4
-
-suffering from javascript fatigue? try native instead
+README
+x replace png with sample code
+x first show hello-world, then todo-list
+x explain build/register process
+- explain why no modules
+x explain shadow dom vs scope
+- add working demo to github pages
+x expand api info
 
 links:
 https://developers.google.com/web/fundamentals/getting-started/primers/customelements

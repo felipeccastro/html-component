@@ -17,6 +17,7 @@
     :host {
       display: block;
       padding: 7px;
+      text-align: center;
     }
 
     :host[active="0"][completed="0"] {
@@ -24,16 +25,17 @@
     }
 
     .items-left {
-      display: inline-block;
+      float: left;
       font-size: 15px;
       color: #aaa;
+      width: 80px;
     }
 
     .filters {
       margin-left: auto;
       margin-right: auto;
-      width: 195px;
-      margin-top: -19px;
+      width: 190px;
+      display: inline-block;
     }
 
     .filter:first-letter {
@@ -66,8 +68,15 @@
     }
 
     .clear-completed {
-      float: right;
-      margin-top: -23px;
+      float: right; 
+    }
+
+    @media (max-width: 500px)  {
+      .items-left, .filters, .clear-completed {
+        display: block;
+        width: 100%;
+        float: none;
+      }
     }
   </style>
 </template>
@@ -78,7 +87,7 @@
     init() {
       this.render()
       .on('click', '.filter', e => this.changeFilter(e))
-      .on('click', '.clear-completed', e => this.publish('clear-completed'))
+      .on('click', '.clear-completed', e => this.emit('clear-completed'))
     }
 
     get total() { return this.props.active + this.props.completed }
@@ -99,7 +108,7 @@
     changeFilter(e) {
       var filter = e.target.textContent.trim()
       this.set({ filter: filter })
-      this.publish('change-filter', filter)
+      this.emit('change-filter', filter)
     }
   }
 
