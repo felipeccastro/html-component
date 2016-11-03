@@ -1,4 +1,4 @@
-# HTML Component
+# HTMLComponent
 Build component-based UIs without frameworks, just vanilla ES6 and Custom Elements.
 
 ## What?
