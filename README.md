@@ -16,6 +16,7 @@ In the meantime, browsers are implementing Web Components natively and some part
 - Template tags: standard approach for holding DOM based templates
 - HTML Imports: allow importing an .html file like we can already do with .css and .js files
 - Shadow DOM: allow creating an internal DOM for each element, out of the document's main scope.
+
 While all these technologies are great, it's not very easy to use them on all browsers today.
 Shadow DOM is very hard to polyfill, and attempts to do it are either slow and/or very complex.
 HTML Imports (polyfilled) can have performance issues when there are too many dependencies (each dependency being a new call to the server), and is still subject to spec changes.
