@@ -101,7 +101,7 @@ It provides a few helpers to make it easier to adopt this style of development:
 - `this.set({props})`: updates all attributes of the hash and automatically triggers a re-render. Being able to re-render components means there's a lot less need of manual DOM manipulation.
 - `this.on(event, selector, handler)`: attaches events using event delegation, so you can re-render the content of the component without losing the events.
 - `this.emit(event, data)`: notify a parent component with a native Custom Event, optionally passing custom data. The parents can listen to this event with the same `this.on()` method.
-- `this.beforeEach(event, handler)` and `this.afterEach(event, handler)`: a handler to run before / after all events attached with `this.on()`.
+- `this.beforeEach(handler)` and `this.afterEach(handler)`: a handler to run before / after all events attached with `this.on()`.
 - `this.show()`, `this.hide()` and `this.toggle(showOrHide)`: shortcuts for adding/removing the `hidden` attribute
 
 - `Component.create(props)` (static): shortcut for instantiating a component  with its props.
