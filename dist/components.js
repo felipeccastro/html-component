@@ -68,7 +68,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			key: 'connectedCallback',
 			value: function connectedCallback() {
 				this.init();
-				this.publish('ready');
+				this.emit('ready');
 			}
 		}, {
 			key: 'init',
@@ -116,8 +116,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				return this;
 			}
 		}, {
-			key: 'publish',
-			value: function publish(eventName, data) {
+			key: 'emit',
+			value: function emit(eventName, data) {
 				this.dispatchEvent(new CustomEvent(eventName, {
 					bubbles: true,
 					detail: data
@@ -175,7 +175,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				var props = this.attributes;
 				for (var i = props.length - 1; i >= 0; i--) {
 					var prop = props[i].name;
-					s[prop] = this.get(prop);
+					s[camelCase(prop)] = this.get(prop);
 				}
 				return s;
 			}
@@ -190,41 +190,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				var tagName = this.is;
 
 				if (HTMLComponentTemplates.shouldCompile) {
-					// get html import's document for finding the template tag
-					// optionally the template might be inlined in the main document
-					var templateDoc = document.currentScript && document.currentScript.ownerDocument ? document.currentScript.ownerDocument : document;
-
-					var templateTag = templateDoc.getElementById(tagName);
-					if (templateTag) {
-						// need to clone template before we can use it
-						templateTag = templateTag.cloneNode(true);
-
-						// try to find a style tag in the template
-						var compStyle = templateTag.content.querySelector('style');
-						if (compStyle) {
-
-							// scope component's style and append it to document.head
-							var stylesTag = document.getElementById('html-components-styles');
-							if (!stylesTag) {
-								stylesTag = document.createElement('style');
-								stylesTag.id = 'html-components-styles';
-								document.head.appendChild(stylesTag);
-							}
-
-							stylesTag.append(scopeCss(compStyle.innerHTML, tagName));
-							// remove style tag so the mustache template is just what's left
-							templateTag.content.removeChild(compStyle);
-						}
-
-						// store compiled mustache template
-						var template = templateTag.innerHTML.trim();
-						if (template) {
-							HTMLComponentTemplates[tagName] = Hogan.compile(template);
-						}
-					}
+					compileImportTemplate(tagName);
 				}
 
-				customElements.define(this.is, this);
+				customElements.define(tagName, this);
 			}
 		}, {
 			key: 'is',
@@ -262,6 +231,41 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		});
 	}
 
+	function compileImportTemplate(tagName) {
+		// get html import's document for finding the template tag
+		// optionally the template might be inlined in the main document
+		var templateDoc = document.currentScript && document.currentScript.ownerDocument ? document.currentScript.ownerDocument : document;
+
+		var templateTag = templateDoc.getElementById(tagName);
+		if (templateTag) {
+			// need to clone template before we can use it
+			templateTag = templateTag.cloneNode(true);
+
+			// try to find a style tag in the template
+			var compStyle = templateTag.content.querySelector('style');
+			if (compStyle) {
+
+				// scope component's style and append it to document.head
+				var stylesTag = document.getElementById('html-components-styles');
+				if (!stylesTag) {
+					stylesTag = document.createElement('style');
+					stylesTag.id = 'html-components-styles';
+					document.head.appendChild(stylesTag);
+				}
+
+				stylesTag.append(scopeCss(compStyle.innerHTML, tagName));
+				// remove style tag so the mustache template is just what's left
+				templateTag.content.removeChild(compStyle);
+			}
+
+			// store compiled mustache template
+			var template = templateTag.innerHTML.trim();
+			if (template) {
+				HTMLComponentTemplates[tagName] = Hogan.compile(template);
+			}
+		}
+	}
+
 	/*
  	Scope a css block to a parent selector
   	e.g.
@@ -294,6 +298,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		css = css.replace(new RegExp('(' + parentRe + ')\\s*@', 'g'), '@');
 
 		return css;
+	}
+
+	// http://stackoverflow.com/questions/6660977/convert-hyphens-to-camel-case-camelcase
+	function camelCase(kebab_case) {
+		return kebab_case.replace(/-([a-z])/g, function (g) {
+			return g[1].toUpperCase();
+		});
 	}
 })();
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -368,7 +379,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         this.render().on('change', '[type=checkbox]', function (e) {
           return _this2.toggleDone(e);
         }).on('click', '.remove', function (e) {
-          return _this2.publish('remove');
+          return _this2.emit('remove');
         }).on('dblclick', '.desc', function (e) {
           return _this2.edit(e);
         }).on('keyup', '.desc', function (e) {
@@ -392,7 +403,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       key: 'toggleDone',
       value: function toggleDone(e) {
         this.set({ done: e.target.checked });
-        this.publish('toggled');
+        this.emit('toggled');
       }
     }]);
 
@@ -499,10 +510,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       value: function addTodo(e) {
         e.preventDefault();
         var newTodo = this.query('.new-todo');
-        var newTodoDesc = newTodo.value.trim();
-        if (!newTodoDesc) return false;
+        if (!newTodo.value) return false;
 
-        var item = TodoItem.create({ desc: newTodoDesc });
+        var item = TodoItem.create({ desc: newTodo.value.trim() });
         this.query('.todos').prepend(item);
 
         newTodo.value = '';
@@ -643,7 +653,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         this.render().on('click', '.filter', function (e) {
           return _this2.changeFilter(e);
         }).on('click', '.clear-completed', function (e) {
-          return _this2.publish('clear-completed');
+          return _this2.emit('clear-completed');
         });
       }
     }, {
@@ -651,7 +661,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       value: function changeFilter(e) {
         var filter = e.target.textContent.trim();
         this.set({ filter: filter });
-        this.publish('change-filter', filter);
+        this.emit('change-filter', filter);
       }
     }, {
       key: 'total',

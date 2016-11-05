@@ -1,7 +1,7 @@
 # TODO
 
-- kebab case to camel case on props
-- move app.css to .html, any style not under template is scoped
+x kebab case to camel case on props
+x move app.css to .html, any style not under template is scoped
 - add some unit testing (like index-dev but index-test)
 - test on ie and firefox
 - minify build

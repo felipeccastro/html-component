@@ -1,3 +1,5 @@
+
+
 /* Theme variables */
 
 
@@ -124,6 +126,7 @@ todo-list     .toggle-all {
 todo-summary {
       display: block;
       padding: 7px;
+      text-align: center;
     }
 
 todo-summary[active="0"][completed="0"] {
@@ -131,16 +134,17 @@ todo-summary[active="0"][completed="0"] {
     }
 
 todo-summary     .items-left {
-      display: inline-block;
+      float: left;
       font-size: 15px;
       color: #aaa;
+      width: 80px;
     }
 
 todo-summary     .filters {
       margin-left: auto;
       margin-right: auto;
-      width: 195px;
-      margin-top: -19px;
+      width: 190px;
+      display: inline-block;
     }
 
 todo-summary     .filter:first-letter {
@@ -173,7 +177,14 @@ todo-summary     button:hover {
     }
 
 todo-summary     .clear-completed {
-      float: right;
-      margin-top: -23px;
+      float: right; 
+    }
+
+@media (max-width: 500px)  {
+todo-summary       .items-left,todo-summary  .filters,todo-summary  .clear-completed {
+        display: block;
+        width: 100%;
+        float: none;
+      }
     }
   

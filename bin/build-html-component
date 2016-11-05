@@ -23,17 +23,20 @@ fs.readdirSync(inputDir).forEach(file => {
   var html = fs.readFileSync(`./${inputDir}/${file}`).toString()
 
   var $ = cheerio.load(html)
-  var name = $('template').attr('id')
+  var name = $('template').attr('id') || file.replace('.html', '')
 
-  styles[name] = $('style').html()
+  var style = $('style').html()
+  if ($('style').parents('template').length) {
+    style = scopeCss(style, name)
+  }
+
+  styles[name] = style
   templates[name] = $('template').find('style').remove().end().html()
   scripts[name] = $('script').html()
 })
 
-var mainCss = fs.readFileSync(`./${inputDir}/app.css`).toString()
-
 writeFile('templates.js', compileTemplates(templates))
-writeFile('components.css', cssNext(mainCss + scopeStyles(styles)))
+writeFile('components.css', cssNext(styles))
 writeFile('components.js', transpileScripts(scripts))
 
 console.timeEnd('Build process')
@@ -55,16 +58,6 @@ function compileTemplates(templates) {
   return output
 }
 
-function scopeStyles(styles) {
-  var output = ''
-  for (var name in styles) {
-    var style = styles[name]
-    if (!style) continue
-    output += '\n' + scopeCss(style, name)
-  }
-  return output
-}
-
 function transpileScripts(scripts) {
   var output = ''
   var babelOptions = { presets: [ 'es2015' ], plugins: [ 'iife-wrap' ] }
@@ -81,6 +74,13 @@ function transpileScripts(scripts) {
   return output
 }
 
-function cssNext(styleString) {
-  return postcss([postcssNext]).process(styleString).css
+function cssNext(styles) {
+  var output = ''
+  for (var name in styles) {
+    var style = styles[name]
+    if (!style) continue
+    output += '\n' + style
+  }
+  output = postcss([postcssNext]).process(output).css
+  return output
 }
