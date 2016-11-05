@@ -92,7 +92,7 @@ window.HTMLComponent = class HTMLComponent extends HTMLElement {
 		var props = this.attributes
 		for(var i = props.length - 1; i >= 0; i--) {
 			var prop = props[i].name
-			s[prop] = this.get(prop)
+			s[camelCase(prop)] = this.get(prop)
 		}
 		return s
 	}
@@ -226,5 +226,10 @@ function scopeCss (css, parent) {
 	css = css.replace(new RegExp('(' + parentRe + ')\\s*@', 'g'), '@')
 
 	return css
+}
+
+// http://stackoverflow.com/questions/6660977/convert-hyphens-to-camel-case-camelcase
+function camelCase(kebab_case) {
+	return kebab_case.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
 }
 </script>
