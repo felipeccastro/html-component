@@ -6,6 +6,21 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 (function () {
 	'use strict';
 
+	function _defaults(obj, defaults) {
+		var keys = Object.getOwnPropertyNames(defaults);
+
+		for (var i = 0; i < keys.length; i++) {
+			var key = keys[i];
+			var value = Object.getOwnPropertyDescriptor(defaults, key);
+
+			if (value && value.configurable && obj[key] === undefined) {
+				Object.defineProperty(obj, key, value);
+			}
+		}
+
+		return obj;
+	}
+
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
 			throw new TypeError("Cannot call a class as a function");
@@ -51,7 +66,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				configurable: true
 			}
 		});
-		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass);
 	}
 
 	// Base class for creating Web Components
@@ -124,20 +139,22 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				}));
 			}
 		}, {
-			key: 'get',
-			value: function get(name) {
+			key: 'getProp',
+			value: function getProp(name) {
 				var value = this.getAttribute(name);
 				if (value.match(/^(true|false|undefined)$/)) value = value == 'true';else if (!isNaN(value)) value = Number(value);
 				return value;
 			}
 		}, {
-			key: 'set',
-			value: function set(data) {
+			key: 'update',
+			value: function update(data) {
 				for (var name in data) {
 					var value = data[name];
 					this.setAttribute(name, value);
 				}
-				return this.render();
+				this.render();
+				this.emit('updated');
+				return this;
 			}
 		}, {
 			key: 'show',
@@ -175,14 +192,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				var props = this.attributes;
 				for (var i = props.length - 1; i >= 0; i--) {
 					var prop = props[i].name;
-					s[camelCase(prop)] = this.get(prop);
+					s[camelCase(prop)] = this.getProp(prop);
 				}
 				return s;
 			}
 		}], [{
 			key: 'create',
 			value: function create(props) {
-				return new this().set(props);
+				return new this().update(props);
 			}
 		}, {
 			key: 'register',
@@ -306,6 +323,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			return g[1].toUpperCase();
 		});
 	}
+
+	// Fix Function#name on browsers that do not support it (IE):
+	// http://stackoverflow.com/questions/6903762/function-name-not-supported-in-ie
+	if (!function f() {}.name) {
+		Object.defineProperty(Function.prototype, 'name', {
+			get: function get() {
+				var name = this.toString().match(/^function\s*([^\s(]+)/)[1];
+				// For better performance only parse once, and then cache the
+				// result through a new accessor for repeated access.
+				Object.defineProperty(this, 'name', { value: name });
+				return name;
+			}
+		});
+	}
 })();
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -313,6 +344,21 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function () {
   'use strict';
+
+  function _defaults(obj, defaults) {
+    var keys = Object.getOwnPropertyNames(defaults);
+
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      var value = Object.getOwnPropertyDescriptor(defaults, key);
+
+      if (value && value.configurable && obj[key] === undefined) {
+        Object.defineProperty(obj, key, value);
+      }
+    }
+
+    return obj;
+  }
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -359,7 +405,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         configurable: true
       }
     });
-    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass);
   }
 
   window.TodoItem = function (_HTMLComponent) {
@@ -397,12 +443,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     }, {
       key: 'save',
       value: function save(e) {
-        if (e.keyCode == 13) this.set({ desc: e.target.value });
+        if (e.keyCode == 13) this.update({ desc: e.target.value });
       }
     }, {
       key: 'toggleDone',
       value: function toggleDone(e) {
-        this.set({ done: e.target.checked });
+        this.update({ done: e.target.checked });
         this.emit('toggled');
       }
     }]);
@@ -418,6 +464,21 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function () {
   'use strict';
+
+  function _defaults(obj, defaults) {
+    var keys = Object.getOwnPropertyNames(defaults);
+
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      var value = Object.getOwnPropertyDescriptor(defaults, key);
+
+      if (value && value.configurable && obj[key] === undefined) {
+        Object.defineProperty(obj, key, value);
+      }
+    }
+
+    return obj;
+  }
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -464,7 +525,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         configurable: true
       }
     });
-    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass);
   }
 
   window.TodoList = function (_HTMLComponent) {
@@ -522,7 +583,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       key: 'toggleAll',
       value: function toggleAll(e) {
         this.todos.forEach(function (item) {
-          return item.set({ done: e.target.checked });
+          return item.update({ done: e.target.checked });
         });
       }
     }, {
@@ -546,7 +607,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     }, {
       key: 'updateSummary',
       value: function updateSummary() {
-        this.query('todo-summary').set({
+        this.query('todo-summary').update({
           active: this.active.length,
           completed: this.completed.length
         });
@@ -587,6 +648,21 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function () {
   'use strict';
+
+  function _defaults(obj, defaults) {
+    var keys = Object.getOwnPropertyNames(defaults);
+
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      var value = Object.getOwnPropertyDescriptor(defaults, key);
+
+      if (value && value.configurable && obj[key] === undefined) {
+        Object.defineProperty(obj, key, value);
+      }
+    }
+
+    return obj;
+  }
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -633,7 +709,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         configurable: true
       }
     });
-    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass);
   }
 
   window.TodoSummary = function (_HTMLComponent) {
@@ -660,7 +736,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       key: 'changeFilter',
       value: function changeFilter(e) {
         var filter = e.target.textContent.trim();
-        this.set({ filter: filter });
+        this.update({ filter: filter });
         this.emit('change-filter', filter);
       }
     }, {

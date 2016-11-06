@@ -12,9 +12,9 @@ In the meantime, browsers are implementing Web Components natively and some part
 
 ## Web components technologies
 "Web components" is an umbrella term for 4 different technologies:
-- Custom Elements: allow creation of new element tags, with custom behavior
+- [Custom Elements](https://developers.google.com/web/fundamentals/getting-started/primers/customelements): allow creation of new element tags, with custom behavior
+- [HTML Imports](https://www.html5rocks.com/en/tutorials/webcomponents/imports/): allow importing an .html file like we can already do with .css and .js files
 - Template tags: standard approach for holding DOM based templates
-- HTML Imports: allow importing an .html file like we can already do with .css and .js files
 - Shadow DOM: allow creating an internal DOM for each element, out of the document's main scope.
 While all these technologies are great, it's not very easy to use them on all browsers today.
 Shadow DOM is very hard to polyfill, and attempts to do it are either slow and/or very complex.
@@ -97,7 +97,7 @@ It provides a few helpers to make it easier to adopt this style of development:
 
 - `this.render()`: invokes the component's template and replace the component's content as the result. It uses the component's mustache template by default. Also fixes boolean attributes in mustache (see Caveats below).
 - `this.props`: gets all attributes of the element as a hash, with some basic "guess" type conversion for numbers and booleans.
-- `this.set({props})`: updates all attributes of the hash and automatically triggers a re-render. Being able to re-render components means there's a lot less need of manual DOM manipulation.
+- `this.update({props})`: updates all attributes of the hash and automatically triggers a re-render. Being able to re-render components means there's a lot less need of manual DOM manipulation.
 - `this.on(event, selector, handler)`: attaches events using event delegation, so you can re-render the content of the component without losing the events.
 - `this.emit(event, data)`: notify a parent component with a native Custom Event, optionally passing custom data. The parents can listen to this event with the same `this.on()` method.
 - `this.beforeEach(event, handler)` and `this.afterEach(event, handler)`: a handler to run before / after all events attached with `this.on()`.

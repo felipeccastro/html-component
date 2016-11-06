@@ -107,7 +107,7 @@
 
     changeFilter(e) {
       var filter = e.target.textContent.trim()
-      this.set({ filter: filter })
+      this.update({ filter: filter })
       this.emit('change-filter', filter)
     }
   }

@@ -78,11 +78,11 @@
 
     save(e) {
       if (e.keyCode == 13)
-        this.set({ desc: e.target.value })
+        this.update({ desc: e.target.value })
     }
 
     toggleDone(e) {
-      this.set({ done: e.target.checked })
+      this.update({ done: e.target.checked })
       this.emit('toggled')
     }
   }

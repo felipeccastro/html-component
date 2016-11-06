@@ -19,7 +19,7 @@ window.HTMLComponent = class HTMLComponent extends HTMLElement {
   }
 
 	static create(props) {
-		return new this().set(props)
+		return new this().update(props)
 	}
 
 	// Shortcut for addEventListener with support for event delegation
@@ -67,8 +67,8 @@ window.HTMLComponent = class HTMLComponent extends HTMLElement {
 		}))
 	}
 
-	// Shortcut for getAttribute, with a basic type conversion
-	get(name) {
+	// Get attribute value, with a basic guess type conversion
+	getProp(name) {
 		var value = this.getAttribute(name)
 		if (value.match(/^(true|false|undefined)$/))
 			value = value == 'true'
@@ -78,12 +78,14 @@ window.HTMLComponent = class HTMLComponent extends HTMLElement {
 	}
 
 	// Shortcut for setAttribute, automatically re-render the view
-	set(data) {
+	update(data) {
 		for(var name in data) {
 			var value = data[name]
 			this.setAttribute(name, value)
 		}
-		return this.render()
+		this.render()
+		this.emit('updated')
+		return this
 	}
 
 	// Mounts a hash with all attributes
@@ -92,7 +94,7 @@ window.HTMLComponent = class HTMLComponent extends HTMLElement {
 		var props = this.attributes
 		for(var i = props.length - 1; i >= 0; i--) {
 			var prop = props[i].name
-			s[camelCase(prop)] = this.get(prop)
+			s[camelCase(prop)] = this.getProp(prop)
 		}
 		return s
 	}
@@ -232,4 +234,19 @@ function scopeCss (css, parent) {
 function camelCase(kebab_case) {
 	return kebab_case.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
 }
+
+// Fix Function#name on browsers that do not support it (IE):
+// http://stackoverflow.com/questions/6903762/function-name-not-supported-in-ie
+if (!(function f() {}).name) {
+	Object.defineProperty(Function.prototype, 'name', {
+		get: function() {
+			var name = this.toString().match(/^function\s*([^\s(]+)/)[1]
+			// For better performance only parse once, and then cache the
+			// result through a new accessor for repeated access.
+			Object.defineProperty(this, 'name', { value: name })
+			return name
+		}
+	})
+}
+
 </script>

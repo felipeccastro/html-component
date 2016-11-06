@@ -60,7 +60,10 @@ function compileTemplates(templates) {
 
 function transpileScripts(scripts) {
   var output = ''
-  var babelOptions = { presets: [ 'es2015' ], plugins: [ 'iife-wrap' ] }
+  var babelOptions = { presets: [ 'es2015' ], plugins: [ 
+    'iife-wrap',
+    'transform-proto-to-assign' 
+  ] }
   for (var name in scripts) {
     var script = scripts[name]
     if (!script) continue
