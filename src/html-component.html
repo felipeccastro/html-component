@@ -19,7 +19,7 @@ window.HTMLComponent = class HTMLComponent extends HTMLElement {
   }
 
 	static create(props) {
-		return new this().update(props)
+		return document.createElement(this.is).update(props)
 	}
 
 	// Shortcut for addEventListener with support for event delegation

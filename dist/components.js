@@ -199,7 +199,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		}], [{
 			key: 'create',
 			value: function create(props) {
-				return new this().update(props);
+				return document.createElement(this.is).update(props);
 			}
 		}, {
 			key: 'register',
