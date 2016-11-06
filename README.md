@@ -193,7 +193,7 @@ From the canonical Todo application:
     }
 
     toggleAll(e) {
-      this.todos.forEach(item => item.set({ done: e.target.checked }))
+      this.todos.forEach(item => item.update({ done: e.target.checked }))
     }
 
     clearCompleted() {
@@ -207,7 +207,7 @@ From the canonical Todo application:
     }
 
     updateSummary() {
-      this.query('todo-summary').set({
+      this.query('todo-summary').update({
         active: this.active.length,
         completed: this.completed.length
       })
