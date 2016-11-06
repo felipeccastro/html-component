@@ -1,4 +1,4 @@
-# HTML Component
+# HTMLComponent
 Build component-based UIs without frameworks, just vanilla ES6 and Custom Elements.
 
 ## What?
@@ -16,6 +16,7 @@ In the meantime, browsers are implementing Web Components natively and some part
 - [HTML Imports](https://www.html5rocks.com/en/tutorials/webcomponents/imports/): allow importing an .html file like we can already do with .css and .js files
 - Template tags: standard approach for holding DOM based templates
 - Shadow DOM: allow creating an internal DOM for each element, out of the document's main scope.
+
 While all these technologies are great, it's not very easy to use them on all browsers today.
 Shadow DOM is very hard to polyfill, and attempts to do it are either slow and/or very complex.
 HTML Imports (polyfilled) can have performance issues when there are too many dependencies (each dependency being a new call to the server), and is still subject to spec changes.
@@ -32,8 +33,8 @@ Using native html imports + html-component, you can describe a component like th
   <!-- Mustache template -->
   <p>Hello {{props.to}}!</p>
 
-
-  <style> /* scoped to component */
+  <style> 
+    /* scoped to component */
     p { font-weight: bold }
   </style>
 </template>
@@ -100,7 +101,7 @@ It provides a few helpers to make it easier to adopt this style of development:
 - `this.update({props})`: updates all attributes of the hash and automatically triggers a re-render. Being able to re-render components means there's a lot less need of manual DOM manipulation.
 - `this.on(event, selector, handler)`: attaches events using event delegation, so you can re-render the content of the component without losing the events.
 - `this.emit(event, data)`: notify a parent component with a native Custom Event, optionally passing custom data. The parents can listen to this event with the same `this.on()` method.
-- `this.beforeEach(event, handler)` and `this.afterEach(event, handler)`: a handler to run before / after all events attached with `this.on()`.
+- `this.beforeEach(handler)` and `this.afterEach(handler)`: a handler to run before / after all events attached with `this.on()`.
 - `this.show()`, `this.hide()` and `this.toggle(showOrHide)`: shortcuts for adding/removing the `hidden` attribute
 
 - `Component.create(props)` (static): shortcut for instantiating a component  with its props.
