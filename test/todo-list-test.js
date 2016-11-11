@@ -11,9 +11,9 @@ describe('TodoList', () => {
     todoList.init()
     todoList.query('.new-todo').value = 'test'
     todoList.addTodo({ preventDefault: function() {}})
-    
+
     var addedTodo = todoList.query('todo-item')
-    expect(addedTodo.get('desc') == 'test')
+    expect(addedTodo.props.desc == 'test')
 
     var todoItem = todoList.query('todo-item[desc="test"]')
     todoItem.query('button.remove').click()
